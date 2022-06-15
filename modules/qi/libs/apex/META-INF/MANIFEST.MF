@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+Vaadin-Package-Version: 1
+Vaadin-Addon: apexcharts-2.0.0-beta13.jar
+Implementation-Vendor: appreciated
+Implementation-Title: ApexCharts.js
+Implementation-Version: 2.0.0-beta13

@@ -1,0 +1,53 @@
+<!DOCTYPE xml-config [
+	<!ENTITY AMOUNT_PATTERN "[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?">
+	<!ENTITY CURRENCY_PATTERN "^\d{1,5}">
+	<!ENTITY TEXT_PATTERN "^[\w\s.,\-\']*$">
+	<!ENTITY TEXT_EXTENDED_PATTERN "^[\w\s.,\-\'():]*$">
+	<!ENTITY WORD_PATTERN "^[\w.\-]*$">
+	<!ENTITY ACCT_CODE_PATTERN "^[\w.]*$">
+	<!ENTITY ZIP_PATTERN "^\d{5}(?:[-\s]\d{4})?$">
+	<!ENTITY STATE_PATTERN "^(AL|AK|AS|AZ|AR|CA|CO|CT|DE|DC|FM|FL|GA|GU|HI|ID|IL|IN|IA|KS|KY|LA|ME|MH|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|MP|OH|OK|OR|PW|PA|PR|RI|SC|SD|TN|TX|UT|VT|VI|VA|WA|WV|WI|WY)$">
+	<!ENTITY SYSCONFIG_ID_PATTERN "^[\w\s.\-\/\?\=\:]{0,255}$">
+	<!ENTITY PHONE_PATTERN "^([+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*)*$">
+	<!ENTITY EMAIL_PATTERN "^$|^.*@.*\..*$">
+	<!ENTITY BIN_PATTERN "^[0-9]{6}$">
+]>
+
+<xml-config name="QI" logger="Q2">
+	<title>jPOS QI</title>
+	<!--first one is default locale-->
+	<locale>en-US</locale>
+	<!--additional locales-->
+	<!--<locale>es-ES</locale>-->
+
+	<messages>qi-core-messages</messages>
+	<messages>qi-eeuser-messages</messages>
+	<messages>qi-sysconfig-messages</messages>
+	<messages>qi-sysconfig-messages</messages>
+	<messages>qi-jcard-messages</messages>
+	<!--  <messages>qi-minigl-messages</messages>-->
+
+	<sidebar id="system">
+		
+		<section name="Demo" />
+		<option name="transact" action="transact" />
+
+	</sidebar>
+
+	<view route="home" class="org.jpos.qi.views.home.HomeView" perm="*" sidebar="system" />
+
+	
+	
+
+	
+	<view route="transact" class="org.jpos.qi.views.demo.TransactView" perm="*" sidebar="jcard">
+		<property name="entityName" value="transaction" />
+		<attribute name="id" field="false" />
+		<attribute name="detail" regex="&TEXT_EXTENDED_PATTERN;" length="255" required="true" />
+		<attribute name="tags" />
+		<attribute name="timestamp" read-only="true" field="false" />
+		<attribute name="postDate" />
+		<attribute name="journal" column="false" read-only="true" />
+		<attribute name="entries" column="false" />
+	</view>
+</xml-config>

@@ -1,0 +1,18 @@
+dependencies {
+    compileOnly libraries.jpos
+    compileOnly libraries.jposee_jetty
+    compileOnly libraries.jposee_db_postgres
+    compileOnly libraries.jposee_sysconfig
+    compileOnly libraries.jposee_visitor
+    compileOnly libraries.jposee_syslog
+    compileOnly libraries.jposee_db_flyway
+    compileOnly libraries.jposee_minigl
+    compileOnly libraries.jcard
+    implementation libraries.crudui
+    implementation ("com.vaadin:vaadin-renderer-flow:${vaadinVersion}")
+    //implementation ("com.vaadin:vaadin-charts-flow:${vaadinVersion}")
+   	//implementation ("com.github.appreciated:apexcharts:2.0.0-beta13")
+}
+
+apply from: "${rootProject.projectDir}/jpos-app.gradle"
+

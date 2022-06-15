@@ -1,0 +1,92 @@
+[part='drawer'] {
+  background-image: linear-gradient(0deg, var(--lumo-shade-5pct), var(--lumo-shade-5pct)) !important;
+}
+
+[slot='drawer'] {
+  background-image: linear-gradient(0deg, var(--lumo-shade-5pct), var(--lumo-shade-5pct));
+}
+
+[slot='drawer'] nav a {
+  text-decoration: none;
+  transition: color 140ms;
+}
+
+[slot='drawer'] nav a .la {
+  margin-top: calc(var(--lumo-space-xs) * 0.5);
+}
+
+[slot='drawer'] nav a::before {
+  border-radius: var(--lumo-border-radius);
+  bottom: calc(var(--lumo-space-xs) * 0.5);
+  content: '';
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: calc(var(--lumo-space-xs) * 0.5);
+  transition: background-color 140ms;
+}
+
+[slot='drawer'] nav a[highlight] {
+  color: var(--lumo-primary-text-color);
+}
+
+[slot='drawer'] nav a[highlight]::before {
+  background-color: var(--lumo-primary-color-10pct);
+}
+
+[slot='drawer'] footer vaadin-context-menu {
+  align-items: center;
+  display: flex;
+}
+
+[slot='drawer'] nav ul li:hover a::before{
+  background-color: var(--lumo-primary-color-10pct) !important;
+}
+
+[slot='drawer'] nav ul li a:hover span{
+ color: var(--lumo-primary-text-color) !important;
+}
+
+
+.bold-label  {
+  font-weight: bold;
+  margin-left:20px;
+  padding-bottom:10px;
+  padding-top:10px;
+  text-transform: uppercase
+ }
+
+.formItemLabel [slot='label'] {
+  float:right;
+  text-align:end;
+  white-space: nowrap;
+}
+
+.formItemLabel {
+  margin-left: 10%;
+  align-items:center;
+}
+
+.formItemPos{
+  align-items: center;
+}
+
+
+
+label.searchCardHolderLabel {
+  padding-top: 10%;
+  padding-left: 35%;
+  font-size: 23px;
+  color: orangered;
+}
+
+vaadin-grid::part(row):hover {
+ background-color: var(--lumo-primary-color-10pct)  !important;  
+ color: var(--lumo-primary-text-color) !important;
+}
+
+
+vaadin-grid::part(body-cell) {
+background-color: inherit;  
+   
+}

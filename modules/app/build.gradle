@@ -1,0 +1,33 @@
+dependencies {
+    implementation libraries.jpos
+    implementation libraries.jposee_jetty
+    implementation libraries.jposee_db_postgres
+    implementation libraries.jposee_sysconfig
+    implementation libraries.jposee_visitor
+    implementation libraries.jposee_syslog
+    implementation libraries.jposee_db_flyway
+    implementation libraries.jposee_minigl
+    implementation('org.jpos.jcard:jcard:2.1.0-SNAPSHOT') {
+        exclude group: 'org.jpos.jcard', module: 'db-dev'
+    }
+}
+
+apply from: "${rootProject.projectDir}/jpos-app.gradle"
+
+installApp.dependsOn(':modules:qi:war')
+
+installApp {
+    ext {
+        qiBuildDir = project(':modules:qi').buildDir
+        qiLibsDir = project(':modules:qi').libsDirName
+    }
+
+    doLast {
+        copy {
+            from "${qiBuildDir}/${qiLibsDir}"
+            into "${buildDir}/install/${archivesBaseName}/webapps"
+            include "*.war"
+        }
+    }
+}
+

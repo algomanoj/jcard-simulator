@@ -1,0 +1,11 @@
+pluginManagement {
+  plugins {
+        id 'com.vaadin' version "${vaadinVersion}"
+    }
+}
+
+include ':modules:qi-core'
+include ':modules:qi-jcard'
+include ':modules:qi'
+include ':modules:app'
+rootProject.name = 'qi2'

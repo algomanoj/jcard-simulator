@@ -1,0 +1,51 @@
+buildscript {
+    repositories {
+        maven { setUrl("https://maven.vaadin.com/vaadin-prereleases") }
+        //maven { setUrl("https://maven.vaadin.com/vaadin-addons") }
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+}
+
+plugins {
+    id 'war'
+    id 'org.gretty' version '3.0.6'
+    id 'com.vaadin'
+}
+
+defaultTasks("build")
+
+repositories {
+    mavenCentral()
+}
+
+gretty {
+    contextPath = "/"
+    servletContainer = "jetty9.4"
+}
+
+vaadin {
+    productionMode = false
+    // npmFolder = project(':modules:app').projectDir
+}
+
+dependencies {
+    implementation enforcedPlatform("com.vaadin:vaadin-bom:${vaadinVersion}")
+
+    // Vaadin
+    implementation ("com.vaadin:vaadin-core")
+    implementation ("com.vaadin:vaadin-renderer-flow:${vaadinVersion}")
+    //implementation "com.vaadin:vaadin-charts-flow"
+    implementation "javax.servlet:javax.servlet-api:3.1.0"
+	//chart
+    implementation files('libs/apex/apexcharts-2.0.0-beta13.jar')
+	// https://mvnrepository.com/artifact/com.vaadin/vaadin-charts-flow
+	//implementation ("com.vaadin:vaadin-charts-flow:${vaadinVersion}")
+	// https://mvnrepository.com/artifact/com.vaadin/vaadin-charts-flow
+	//implementation ("com.github.appreciated:apexcharts:2.0.0-beta13")
+    // logging
+    // currently we are logging through the SLF4J API to SLF4J-Simple. See src/main/resources/simplelogger.properties file for the logger configuration
+    implementation "org.slf4j:slf4j-simple:1.7.30"
+    implementation project (':modules:qi-core')
+    implementation project (':modules:qi-jcard')
+}
+

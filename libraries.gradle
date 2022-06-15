@@ -1,0 +1,23 @@
+ext {
+    jposVersion = '2.1.8-SNAPSHOT'
+    jposeeVersion = '2.2.9-SNAPSHOT'
+    greetyVersion = '3.0.6'
+    cruduiVersion = '5.0.0'
+    jcardVersion = '2.1.0-SNAPSHOT'
+
+    libraries = [
+        junit: 'junit:junit:4.12',
+        jpos: "org.jpos:jpos:${jposVersion}",
+        jposee_core: "org.jpos.ee:jposee-core:${jposeeVersion}",
+        jposee_jetty: "org.jpos.ee:jposee-jetty:${jposeeVersion}",
+        jposee_db_postgres: "org.jpos.ee:jposee-db-postgresql:${jposeeVersion}",
+        jposee_sysconfig: "org.jpos.ee:jposee-sysconfig:${jposeeVersion}",
+        jposee_visitor: "org.jpos.ee:jposee-visitor:${jposeeVersion}",
+        jposee_syslog: "org.jpos.ee:jposee-syslog:${jposeeVersion}",
+        jposee_db_flyway: "org.jpos.ee:jposee-db-flyway:${jposeeVersion}",
+        jposee_minigl: "org.jpos.ee:jposee-minigl:${jposeeVersion}",
+        jcard: "org.jpos.jcard:jcard:${jcardVersion}",
+        crudui: "org.vaadin.crudui:crudui:${cruduiVersion}"
+    ]
+}
+
