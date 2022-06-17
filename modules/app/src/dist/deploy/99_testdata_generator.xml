@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ztest class="org.jpos.util.TestDataGenerator">
+ <property name="source" value="QI99" />
+</ztest>
