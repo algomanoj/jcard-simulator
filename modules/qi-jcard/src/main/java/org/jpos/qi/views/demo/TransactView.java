@@ -6,17 +6,14 @@ import java.util.Date;
 import java.util.HashMap;
 
 import org.jpos.core.Configuration;
-import org.jpos.iso.ISODate;
-import org.jpos.iso.ISOException;
-import org.jpos.iso.ISOMsg;
-import org.jpos.iso.ISOUtil;
-import org.jpos.iso.MUX;
+import org.jpos.iso.*;
 import org.jpos.iso.PosDataCode.POSEnvironment;
 import org.jpos.q2.iso.QMUX;
 import org.jpos.qi.QI;
 import org.jpos.qi.QIUtils;
+import org.jpos.util.NameRegistrar;
 import org.jpos.util.NameRegistrar.NotFoundException;
-
+import java.math.BigDecimal;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.Unit;
@@ -364,9 +361,12 @@ public class TransactView extends Composite<VerticalLayout> {
 			if (emd != null) {
 				m.set(3, emd.getTtc() + "0000"); // Processing Code
 			}
-			Double amt = Double.parseDouble(amountField.getValue());
-			Integer iamt = (int) (amt * 100);
-			m.set(4, currencyField.getValue() + "2" + ISOUtil.zeropad(iamt.toString(), 12)); // Currency
+//			Double amt = Double.parseDouble(amountField.getValue());
+	//		Integer iamt = (int) (amt * 100);
+		//	m.set(4, currencyField.getValue() + "2" + ISOUtil.zeropad(iamt.toString(), 12)); // Currency
+			
+			BigDecimal amount = new BigDecimal(amountField.getValue());
+            m.set(new ISOAmount(4, Integer.parseInt(currencyField.getValue()), amount));
 			
 			if(cvvField.getValue() == null || cvvField.getValue().isEmpty() == false) {
 				m.set("49.2", cvvField.getValue());
@@ -402,7 +402,7 @@ public class TransactView extends Composite<VerticalLayout> {
 			// m.set(46, "07D84020000005000000001D840200000050");
 			m.set("113.2", "106");
 			m.set("113.25", "MINIATM");
-			MUX mux = QMUX.getMUX("cli-mux");
+			MUX mux =  NameRegistrar.getIfExists ("mux.jcard");
 			// if it's a 2220, send a 2100 first.
 			boolean send = true;
 			if ("2220".equals(mti)) {
@@ -431,12 +431,6 @@ public class TransactView extends Composite<VerticalLayout> {
 					setResponse(r);
 				}
 			}
-		} catch (NotFoundException e) {
-			System.out.println(e);
-			setStatus("Mux not found to send Request");
-		} catch (ISOException e) {
-			System.out.println(e);
-			setStatus("Request send encountered exception");
 		} catch (Exception e) {
 			System.out.println(e);
 			setStatus("Encountered unknown exception");

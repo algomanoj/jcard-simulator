@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+
+<channel-adaptor name='jcard-channel' class="org.jpos.q2.iso.ChannelAdaptor" logger="Q2" realm="jcard-channel">
+    <channel class="org.jpos.iso.channel.XMLChannel"
+             packager="org.jpos.iso.packager.XML2003Packager" logger="Q2" realm="cmf-channel">
+        <property name="host" value="localhost"/>
+        <property name="port" value="9000"/>
+		<property name="packager-logger" value="Q2" />
+    </channel>
+    <in>jcard-send</in>
+    <out>jcard-receive</out>
+    <reconnect-delay>1000</reconnect-delay>
+</channel-adaptor>
+
