@@ -10,6 +10,7 @@ dependencies {
     implementation('org.jpos.jcard:jcard:2.1.0-SNAPSHOT') {
         exclude group: 'org.jpos.jcard', module: 'db-dev'
     }
+	implementation project (':modules:qi-jcard')
 }
 
 apply from: "${rootProject.projectDir}/jpos-app.gradle"
