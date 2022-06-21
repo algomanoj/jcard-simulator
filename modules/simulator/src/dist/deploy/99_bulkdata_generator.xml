@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<data-generator class="org.jpos.util.BulkDataGenerator" enabled="true">
+ <property name="source" value="QI99" />
+</data-generator>

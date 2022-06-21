@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  */
 
 //todo: place on correct package, only here temporarily
-public class TestDataGenerator1 extends QBeanSupport {
+public class BulkDataGenerator extends QBeanSupport {
 
     private CLIContext cli;
     private Issuer issuer;
@@ -128,11 +128,11 @@ public class TestDataGenerator1 extends QBeanSupport {
 
 	}
 
-	public TestDataGenerator1() {
+	public BulkDataGenerator() {
 		
 	}
 
-    public TestDataGenerator1(CLIContext cli, String fileUrl, String mglSetup) throws Exception  {
+    public BulkDataGenerator(CLIContext cli, String fileUrl, String mglSetup) throws Exception  {
         this.cli=cli;
 
         miniGLSetupPath= mglSetup != null ? mglSetup : miniGLSetupPath;

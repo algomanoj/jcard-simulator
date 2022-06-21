@@ -7,5 +7,5 @@ pluginManagement {
 include ':modules:qi-core'
 include ':modules:qi-jcard'
 include ':modules:qi'
-include ':modules:app'
+include ':modules:simulator'
 rootProject.name = 'qi2'
