@@ -1,50 +1,68 @@
 package org.jpos.util;
 
+import java.math.BigDecimal;
+import java.security.SecureRandom;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaDelete;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+
+import org.hibernate.Query;
 import org.jpos.core.InvalidCardException;
-import org.jpos.ee.*;
-import org.jpos.gl.*;
-import org.jpos.gl.tools.Import;
+import org.jpos.ee.Card;
+import org.jpos.ee.CardHolder;
+import org.jpos.ee.CardManager;
+import org.jpos.ee.CardProduct;
+import org.jpos.ee.CardState;
+import org.jpos.ee.DB;
+import org.jpos.ee.DBManager;
+import org.jpos.ee.Fee;
+import org.jpos.ee.FeeManager;
+import org.jpos.ee.Issuer;
+import org.jpos.ee.IssuerManager;
+import org.jpos.ee.State;
+import org.jpos.ee.SysConfig;
+import org.jpos.ee.SysConfigManager;
+import org.jpos.ee.TranLog;
+import org.jpos.ee.TranLogFollowUp;
+import org.jpos.ee.VelocityProfile;
+import org.jpos.gl.Account;
+import org.jpos.gl.CompositeAccount;
+import org.jpos.gl.FinalAccount;
+import org.jpos.gl.GLSession;
 import org.jpos.iso.ISODate;
 import org.jpos.iso.ISOException;
 import org.jpos.iso.ISOUtil;
-import org.jpos.q2.CLIContext;
 import org.jpos.q2.QBeanSupport;
 import org.jpos.security.SecureDESKey;
 import org.jpos.security.SecureKeyStore;
 import org.jpos.security.jceadapter.SSM;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
-
-/**
- * Created by jr on 9/18/17.
- */
-
-//todo: place on correct package, only here temporarily
 public class BulkDataGenerator extends QBeanSupport {
 
-    private CLIContext cli;
-    private Issuer issuer;
-    private Map urls;
+	public static Random random = new SecureRandom();
 
-    private String miniGLSetupPath= "../../../../jcard/src/setup/dist/cfg/minigl-setup.xml";
     private int NO_OF_FEE_RECORDS = 7;
 	private List<Fee> feeList = new ArrayList<>();
 	private List<CardProduct> cardProductList = new ArrayList<>();
 	List<String> schemeList = new ArrayList<String>();
 	private int NO_OF_CARDHOLDER_RECORDS = 1000;
-	private int NO_OF_CH_WITHOUT_CARD_RECORDS = 1000;
+	private int NO_OF_CH_WITHOUT_CARD_RECORDS = 100;
 	private Map<String, List<State>> countryStateMap = new HashMap<>();
 	Random rand = new Random();
 	List<Issuer> issuerList = null;
@@ -55,9 +73,19 @@ public class BulkDataGenerator extends QBeanSupport {
 	List<String> cardtypes = new ArrayList<>();
 	List<CardHolder> cardHolderList = new ArrayList<>();
 	private int tokenCounter = 0;
-	static int cardNo = 1234567;
+	String realIdStart = null;
+	int realIdCounter = 0;
+	//pointing all cardholder to same account
+	FinalAccount defaultAcct = null;
+	FinalAccount savingsAcct = null;
+	FinalAccount checkingAcct = null;
+	FinalAccount refundAcct = null;
+
 
 	{
+		DateFormat df = new SimpleDateFormat("yyMMddHH");
+		realIdStart = df.format(new Date());
+		
 		velAmount.put("MaxTwoHundred", new BigDecimal("200.00"));
 		velAmount.put("MaxThreeHundred", new BigDecimal("300.00"));
 		velAmount.put("MaxFourHundred", new BigDecimal("400.00"));
@@ -73,450 +101,114 @@ public class BulkDataGenerator extends QBeanSupport {
 		cardtypes.add("Others");
 
 		schemeList.add("VISA");
-		schemeList.add("MasterCard");
+		schemeList.add("MasterCard"); 
 		schemeList.add("AmEx");
 		schemeList.add("Discover");
-
+		 
 		ArrayList<String> cardProductVisa = new ArrayList<String>();
-		cardProductVisa.add("Classic");
-		cardProductVisa.add("Gold");
-		cardProductVisa.add("Platinum");
-		cardProductVisa.add("Signature");
-		cardProductVisa.add("Infinite");
-		cardProductVisa.add("Elite");
-		cardProductVisa.add("Prime");
-		cardProductVisa.add("Travel");
-		cardProductVisa.add("Dine");
-		cardProductVisa.add("Reward");
+		cardProductVisa.add("Classic:455636");
+		cardProductVisa.add("Gold:480286");
+		cardProductVisa.add("Platinum:413348");
+		cardProductVisa.add("Signature:423608");
+		cardProductVisa.add("Infinite:489113");
+		cardProductVisa.add("Elite:453226");
+		cardProductVisa.add("Prime:452668");
+		cardProductVisa.add("Travel:491618");
+		cardProductVisa.add("Dine:455682");
+		cardProductVisa.add("Reward:456178");
 		aList.add(cardProductVisa);
 
 		ArrayList<String> cardProductMaster = new ArrayList<String>();
-		cardProductMaster.add("Standard");
-		cardProductMaster.add("Titanium");
-		cardProductMaster.add("Platinum");
-		cardProductMaster.add("WorldMast");
-		cardProductMaster.add("WorldElite");
-		cardProductMaster.add("Select");
-		cardProductMaster.add("PremierMiles");
-		cardProductMaster.add("Business");
-		cardProductMaster.add("NEO");
-		cardProductMaster.add("SmartValue");
+		cardProductMaster.add("Standard:517942");
+		cardProductMaster.add("Titanium:532372");
+		cardProductMaster.add("Platinum:541110");
+		cardProductMaster.add("WorldMast:547837");
+		cardProductMaster.add("WorldElite:512673");
+		cardProductMaster.add("Select:519696");
+		cardProductMaster.add("PremierMiles:525640");
+		cardProductMaster.add("Business:534249");
+		cardProductMaster.add("NEO:531789");
+		cardProductMaster.add("SmartValue:513415");
 		aList.add(cardProductMaster);
 
 		ArrayList<String> cardProductAmeExp = new ArrayList<String>();
-		cardProductAmeExp.add("Standard");
-		cardProductAmeExp.add("PlatinumEdge");
-		cardProductAmeExp.add("PlatinumCard");
-		cardProductAmeExp.add("PlatinumReserve");
-		cardProductAmeExp.add("WorldElite");
-		cardProductAmeExp.add("Gold");
-		cardProductAmeExp.add("SmartEarn");
-		cardProductAmeExp.add("MembershipRewards");
-		cardProductAmeExp.add("PlatinumTravel");
-		cardProductAmeExp.add("Delight");
+		cardProductAmeExp.add("Standard:371559");
+		cardProductAmeExp.add("PlatinumEdge:371560");
+		cardProductAmeExp.add("PlatinumCard:371566");
+		cardProductAmeExp.add("PlatinumReserve:371701");
+		cardProductAmeExp.add("WorldElite:371727");
+		cardProductAmeExp.add("Gold:376064");
+		cardProductAmeExp.add("SmartEarn:376066");
+		cardProductAmeExp.add("MembershipRewards:376522");
+		cardProductAmeExp.add("PlatinumTravel:376627");
+		cardProductAmeExp.add("Delight:375001");
 		aList.add(cardProductAmeExp);
 
 		ArrayList<String> cardProductDiscover = new ArrayList<String>();
-		cardProductDiscover.add("CashBack");
-		cardProductDiscover.add("Travel");
-		cardProductDiscover.add("Gas&Restaurant");
-		cardProductDiscover.add("StudentChrome");
-		cardProductDiscover.add("Business");
-		cardProductDiscover.add("Freedom");
-		cardProductDiscover.add("Goldclub");
+		cardProductDiscover.add("CashBack:601100");
+		cardProductDiscover.add("Travel:601120");
+		cardProductDiscover.add("Gas&Restaurant:659524");
+		cardProductDiscover.add("StudentChrome:651621");
+		cardProductDiscover.add("Business:655066");
+		cardProductDiscover.add("Freedom:659524");
+		cardProductDiscover.add("Goldclub:601149");
 		aList.add(cardProductDiscover);
-
+		 
 	}
 
 	public BulkDataGenerator() {
 		
 	}
+	
+	
+    protected void initService() throws Exception {
+    	log.info("InitService BulkData Generator");
+	}
 
-    public BulkDataGenerator(CLIContext cli, String fileUrl, String mglSetup) throws Exception  {
-        this.cli=cli;
+	protected void startService() throws Exception {
+		log.info("Starting BulkData Generator");
+		
+		if(cfg.getBoolean("clean-up", true))
+			cleanOldData();
 
-        miniGLSetupPath= mglSetup != null ? mglSetup : miniGLSetupPath;
-        File setupFile= new File(miniGLSetupPath);
-        if (!setupFile.exists()) {
-            System.out.println("Invalid minigl setup path: '"+miniGLSetupPath+"'");
-            throw new FileNotFoundException(miniGLSetupPath);
-        }
+		if(cfg.getBoolean("generate-data", true)) {
+			GLSession gls = new GLSession(new DB(), "admin");
+			defaultAcct = gls.getFinalAccount("jcard", "21.0000001.00");
+			savingsAcct = gls.getFinalAccount("jcard", "21.0000001.10");
+			checkingAcct = gls.getFinalAccount("jcard", "21.0000001.20");
+			refundAcct = gls.getFinalAccount("jcard", "21.0000001.31");
 
-        File urlFile = new File(fileUrl);
-        try {
-            CSVParser parser = new CSVParser(urlFile);
-            Map urls = parser.readLine();
-            this.urls = urls;
-            parser.close();
-        } catch (FileNotFoundException f) {
-            System.out.println("Invalid url. Please check.");
-            throw f;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+			generateMockData();
+		}
+		
+		log.info("BulkData Generator Completed");
+	}
 
-    
-    public void generateData() {
-        try {
-            String rolesURL = (String) urls.get("roles");
-            if (rolesURL != null) {
-                generateRoles(rolesURL);
-            }
-            String usersURL = (String) urls.get("users");
-            if (usersURL != null) {
-                generateUsers(usersURL);
-            }
-            String rcURL = (String) urls.get("rc");
-            if (rcURL != null) {
-                generateRCs(rcURL);
-            }
-            generateMiniGL();
-            String cardholdersURL = (String) urls.get("cardholders");
-            if (cardholdersURL != null) {
-                generateCardHolders(cardholdersURL);
-            }
-            System.out.println("Finished");
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+	protected void stopService() throws Exception {
+		log.info("Stopping BulkData Generator");
+	}
 
-    private void generateCardHolders(String cardholdersURL) throws Exception {
-        if (isEmpty(CardHolder.class)) {
-            System.out.println("Generating Cardholders...");
-            CSVParser cardholderParser = new CSVParser(new File(cardholdersURL));
-            Map cardholderMap = cardholderParser.readLine();
-            Random r = new Random();
-            while (cardholderMap != null) {
-                int i = r.nextInt(cardProductList.size());
-                createCardHolder(cardProductList.get(i), cardholderMap);
-                cardholderMap = cardholderParser.readLine();
-            }
-            cardholderParser.close();
-        } else {
-            throw new BLException("Database not empty. Please verify");
-        }
-    }
-
-    private void generateRCs(String rcURL) throws Exception {
-        if (isEmpty(ResultCode.class)) {
-            System.out.println("Generating Response Codes...");
-            CSVParser rcParser = new CSVParser((new File(rcURL)));
-            Map rc = rcParser.readLine();
-            while (rc != null) {
-                createRC(rc);
-                rc = rcParser.readLine();
-            }
-            rcParser.close();
-        } else {
-            throw new BLException("Database not empty. Please verify");
-        }
-    }
-
-    private void generateUsers(String usersURL) throws Exception {
-        if (usersEmptyOrAdmin()) {
-            System.out.println("Generating Users...");
-            CSVParser userParser = new CSVParser(new File(usersURL));
-            Map user = userParser.readLine();
-            while (user != null) {
-                createUser(user);
-                user = userParser.readLine();
-            }
-            userParser.close();
-        } else {
-            throw new BLException("Database not empty. Please verify");
-        }
-    }
-
-    private void generateRoles(String rolesURL) throws Exception {
-        if (isEmpty(Role.class)) {
-            System.out.println("Generating Roles...");
-            CSVParser roleParser = new CSVParser(new File(rolesURL));
-            Map role = roleParser.readLine();
-            while (role != null) {
-                createRole(role);
-                role = roleParser.readLine();
-            }
-            roleParser.close();
-        } else {
-            throw new BLException("Database not empty. Please verify");
-        }
-    }
-
-    private void generateMiniGL() {
-        System.out.println("Setting up miniGL from '"+miniGLSetupPath+"'");
-        try {
-            new Import().parse(miniGLSetupPath);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
-        //ISSUER AND ACQUIRER AND CARDPRODUCTS
-        cardProductList = new ArrayList<>();
-        try {
-            issuer = createIssuer("jcard","00000000001");
-            CardProduct cpn = createCardProduct(issuer, "jCard", "11.001.00","31.001.00");
-            createVelocityProfiles(cpn);
-            cardProductList.add(cpn);
-            cardProductList.add(createCardProduct (issuer, "jCard Gold","11.001.00","31.001.00"));
-            CardProduct cpGift = createCardProduct (issuer, "Gift Cards", "11.001.00","31.001.00");
-            cpGift.setAnonymous(true);
-            cardProductList.add(cpGift);
-            Acquirer acquirer = createTestAcquirer(issuer);
-            Merchant m = createMerchant(acquirer);
-            generateStoresAndTerminals(m);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void createVelocityProfiles(CardProduct cpn) throws Exception {
-        DB.execWithTransaction(db -> {
-            db.session().refresh(cpn);
-            cpn.getVelocityProfiles ().add(
-                    createVP("MaxTwoHundred", cpn, "840", true, false, false,
-                            true, true, true,false, 0, 1, new BigDecimal("200.00"))
-            );
-            cpn.getVelocityProfiles ().add (
-                    createVP ("FiveHundred", cpn, "840", true, true, true,
-                            true, true, true, false, 5, 5, new BigDecimal ("500.00"))
-            );
-            db.save(cpn);
-            return null;
-        });
-    }
-
-    private void createRC(Map rcMap) throws Exception {
-        DB.execWithTransaction(db -> {
-            ResultCode rc = new ResultCode();
-            rc.setId(Long.valueOf((String) rcMap.get("id")));
-            rc.setMnemonic((String) rcMap.get("mnemonic"));
-            rc.setDescription((String) rcMap.get("description"));
-            Map<String,ResultCodeInfo> locales = new HashMap();
-            ResultCodeInfo rci = new ResultCodeInfo();
-            rci.setResultCode(ISOUtil.zeropad(rc.getId(),4));
-            rci.setResultInfo(rc.getDescription());
-            locales.put("JCARD", rci);
-            rc.setLocales(locales);
-            db.save(rc);
-            return null;
-        });
-    }
-
-    private void createRole(Map rolesMap) throws Exception {
-        DB.execWithTransaction(db -> {
-            Role r = new Role((String) rolesMap.get("name"));
-            db.save(r);
-            return null;
-        });
-    }
-
-    private void createUser(Map userMap) throws Exception {
-        DB.execWithTransaction(db -> {
-            // System.out.println("      User '"+userMap.get("nick")+"'");
-            User user = new User();
-            user.setNick ((String) userMap.get("nick"));
-            user.setActive (true);
-            user.setName ((String) userMap.get("name"));
-            UserManager mgr = new UserManager(db);
-            mgr.setPassword(user, "guest");
-            db.save (user);
-            return null;
-        });
-    }
-
-    private Issuer createIssuer(String issuerName, String realId) throws Exception {
-        return DB.execWithTransaction(db -> {
-            Issuer issuer = new Issuer();
-            issuer.setActive (true);
-            issuer.setInstitutionId(realId);
-            issuer.setName(issuerName);
-            issuer.setTz ("UTC");
-            issuer.setStartDate (ISODate.parseISODate("20050101000000"));
-            issuer.setEndDate (ISODate.parseISODate ("20490101235959"));
-            GLSession gls = new GLSession(db,"admin");
-            issuer.setJournal (gls.getJournal ("jcard"));
-            issuer.setAssetsAccount ((CompositeAccount) gls.getAccount ("jcard", "11.001"));
-            issuer.setEarningsAccount ((CompositeAccount) gls.getAccount ("jcard", "31.001"));
-            issuer.setLossesAccount ((CompositeAccount) gls.getAccount ("jcard", "41.001"));
-            db.save (issuer);
-            return issuer;
-        });
-    }
-
-    private CardProduct createCardProduct (Issuer issuer, String name, String issuedAccount, String feeAccount) throws Exception {
-        return (CardProduct) DB.execWithTransaction(db -> {
-            CardProduct cp = new CardProduct();
-            cp.setIssuer(issuer);
-            cp.setName(name);
-            cp.setStartDate(ISODate.parseISODate("20050101000000"));
-            cp.setEndDate(ISODate.parseISODate("20490101235959"));
-            cp.setActive(true);
-            GLSession gls = new GLSession(db,"admin");
-            cp.setIssuedAccount(gls.getFinalAccount("jcard",issuedAccount));
-            cp.setFeeAccount(gls.getFinalAccount("jcard",feeAccount));
-            db.save(cp);
-            Fee cashAdvanceFlat = new Fee.FeeBuilder().type("CashAdvance.flat.840").amount(new BigDecimal("3.50"))/*.cardProduct(cp)*/.build();
-            Fee cashAdvancePercentage = new Fee.FeeBuilder().type("CashAdvance.%.840").amount(new BigDecimal("3.2500"))/*.cardProduct(cp)*/.build();
-            db.save(cashAdvanceFlat);
-            db.save(cashAdvancePercentage);
-            return cp;
-        });
-
-    }
-
-    private VelocityProfile createVP (String name, CardProduct cp, String currencyCode,
-            boolean scopeCard, boolean scopeAccount, boolean approvalsOnly,
-            boolean onPurchase, boolean onWithdrawal, boolean onTransfer, boolean onCredit,
-            int numberOfDays, int usageLimit, BigDecimal amountLimit)
-    {
-        VelocityProfile vp = new VelocityProfile();
-        vp.setName (name);
-        vp.setActive (true);
-        vp.setCurrencyCode (currencyCode);
-        vp.setNumberOfDays (numberOfDays);
-        vp.setScopeCard (scopeCard);
-        vp.setScopeAccount (scopeAccount);
-        vp.setApprovalsOnly (approvalsOnly);
-        vp.setUsageLimit (usageLimit);
-        vp.setAmountLimit (amountLimit);
-        vp.setValidOnPurchase (onPurchase);
-        vp.setValidOnWithdrawal (onWithdrawal);
-        vp.setValidOnTransfer (onTransfer);
-        vp.setValidOnCredit(onCredit);
-        //vp.setCardProduct(cp);
-        return vp;
-    }
-
-    private Acquirer createTestAcquirer(Issuer issuer) throws Exception {
-        return (Acquirer) DB.execWithTransaction(db -> {
-            Acquirer acquirer = new Acquirer();
-            acquirer.setInstitutionId(issuer.getInstitutionId()); // use same ID as Issuer for testing purposes
-            acquirer.setActive (true);
-            acquirer.setIssuer (issuer);
-            acquirer.setName ("Test Acquirer");
-            GLSession gls = new GLSession(db,"admin");
-            acquirer.setTransactionAccount (
-                    gls.getFinalAccount ("jcard", "20.001.001")
-            );
-            acquirer.setFeeAccount (
-                    gls.getFinalAccount ("jcard", "20.001.002")
-            );
-            acquirer.setRefundAccount (
-                    gls.getFinalAccount ("jcard", "12.001.31")
-            );
-            acquirer.setDepositAccount (
-                    gls.getFinalAccount ("jcard", "12.001.32")
-            );
-            db.save (acquirer);
-            return acquirer;
-        });
-    }
-    private Merchant createMerchant(Acquirer acquirer) throws Exception {
-        return (Merchant) DB.execWithTransaction(db-> {
-            Merchant merchant = new Merchant();
-            merchant.setMerchantId("000000001");
-            merchant.setActive(true);
-            merchant.setName("Merchant A");
-            merchant.setAcquirer (acquirer);
-            db.save(merchant);
-            return merchant;
-        });
-    }
-
-    private void generateStoresAndTerminals(Merchant m) throws Exception {
-        for (int i=1; i<=10; i++)
-            createStoreAndTerminals(m, i);
-    }
-
-    private void createStoreAndTerminals (Merchant m, int i) throws Exception {
-        Store s = (Store) DB.execWithTransaction(db -> {
-            Store store = new Store();
-            store.setMerchantId(m.getId() + ISOUtil.zeropad(Integer.toString(i), 3));
-            store.setActive(true);
-            store.setParent(m);
-            store.setName(m.getName() + " store " + i);
-            store.setAcquirer(m.getAcquirer());
-            db.save(store);
-            return store;
-        });
-        for (int j = 1; j <= 100; j++)
-            createTerminal(s, j);
-    }
-
-    private void createTerminal (Merchant m, int i) throws Exception {
-        DB.execWithTransaction(db -> {
-            Terminal t = new Terminal();
-            t.setTerminalId (ISOUtil.zeropad(Integer.toString(i), 8));
-            t.setActive (true);
-            t.setMerchant (m);
-            db.save (t);
-            return null;
-        });
-
-    }
-
-    private void createCardHolder(CardProduct cp, Map cardholder) throws Exception {
-        DB.execWithTransaction(db ->{
-            // System.out.println("      CardHolder "+cardholder.get("realId"));
-            CardHolder ch = new CardHolder();
-            String realId = (String) cardholder.get("realId");
-            ch.setRealId(realId);
-            ch.setFirstName((String) cardholder.getOrDefault("firstName",""));
-            ch.setMiddleName((String) cardholder.getOrDefault("middleName",""));
-            ch.setLastName((String) cardholder.getOrDefault("lastName",""));
-            ch.setLastName2((String) cardholder.getOrDefault("lastName2",""));
-            ch.setHonorific((String) cardholder.getOrDefault("honorific",""));
-            ch.setEmail((String) cardholder.get("email"));
-            ch.setGender((String) cardholder.get("gender"));
-            ch.setActive(true);
-            ch.setStartDate(ISODate.parseISODate("20050101000000"));
-            ch.setEndDate(ISODate.parseISODate("20490101235959"));
-            ch.setIssuer(issuer);
-
-            GLSession gls = new GLSession(db,"admin");
-            CompositeAccount parentAccount = gls.getCompositeAccount("jcard","21");
-            FinalAccount cardHolderAccount = new FinalAccount();
-            cardHolderAccount.setCode("21." + realId);
-            cardHolderAccount.setParent(parentAccount);
-            cardHolderAccount.setDescription("CardHolder " + realId);
-            cardHolderAccount.setRoot((CompositeAccount) gls.getChart("jcard"));
-            cardHolderAccount.setType(Account.CREDIT);
-            cardHolderAccount.setCreated(new Date());
+	protected void destroyService() throws Exception {
+		log.info("Destroying BulkData Generator");
+	}
 
 
-            Card card = createCard(db, cp, ch,(String) cardholder.get("pan"));
-            Set<Card> set = new HashSet<>();
-            set.add(card);
-            ch.setCards(set);
-            db.save(cardHolderAccount);
-            db.save(ch);
-            db.save(card);
-            Map accounts = new HashMap();
-            accounts.put("00.840",cardHolderAccount);
-            ch.setAccounts(accounts);
-
-            GLTransaction txn = new GLTransaction("Initial balance");
-            txn.createCredit(cardHolderAccount,BigDecimal.valueOf(1000),"Initial funds",(short)840);
-            FinalAccount tempLiabilities = gls.getFinalAccount("jcard","29.001");
-            txn.createDebit(tempLiabilities,BigDecimal.valueOf(1000),"Initial funds for CardHolder: " + ch.getRealId(),(short)840);
-            gls.post(gls.getJournal("jcard"),txn);
-            return null;
-        });
-    }
-
-    private Card createCard(DB db, CardProduct cp, CardHolder ch, String pan) throws NameRegistrar.NotFoundException, ISOException, InvalidCardException {
+    private Card createCard(DB db, CardProduct cp, CardHolder ch) throws NameRegistrar.NotFoundException, ISOException, InvalidCardException {
         CardManager cmgr = new CardManager(db);
-        if (pan.length() < 15) {
-            pan = ISOUtil.zeropad(pan,15);
-        }
+		if (cp.getBin() == null)
+			return null;
+        
+        String pan = cp.getBin() + ISOUtil.getRandomDigits(random, 9, 10);
+        pan = pan + calcLUHN(pan.substring(0,15));
+
         Card card = cmgr.createCard(ch, pan.substring(0,15), null, null,"000", getSSM(), getCurrentBDK(), getCurrentBDKName());
         card.setActive(true);
         card.setCardHolder(ch);
         card.setStartDate(ISODate.parseISODate("20050101000000"));
         card.setEndDate(ISODate.parseISODate("20490101235959"));
         card.setToken(ISOUtil.zeropad(tokenCounter,12));
+        card.setBin(cp.getBin());
+        card.setState(CardState.ACTIVE);
         tokenCounter++;
         card.setCardProduct(cp);
         db.save(card);
@@ -535,62 +227,6 @@ public class BulkDataGenerator extends QBeanSupport {
         return (SecureDESKey) ks.getKey(getCurrentBDKName());
     }
 
-    private boolean isEmpty(Class c) throws Exception {
-        int count = (int) DB.exec(db ->  {
-            CriteriaBuilder criteriaBuilder = db.session().getCriteriaBuilder();
-            CriteriaQuery<Long> query = criteriaBuilder.createQuery(Long.class);
-            query.select(criteriaBuilder.count(query.from(c)));
-            return db.session().createQuery(query).uniqueResult().intValue();
-        });
-        return count == 0;
-    }
-
-    // check that, at most, only the admin user exists
-    private boolean usersEmptyOrAdmin() throws Exception {
-        boolean succ= (boolean) DB.exec(db ->  {
-            CriteriaBuilder criteriaBuilder = db.session().getCriteriaBuilder();
-            CriteriaQuery<Long> query = criteriaBuilder.createQuery(Long.class);
-            query.select(criteriaBuilder.count(query.from(User.class)));
-            int usersCount= db.session().createQuery(query).uniqueResult().intValue();
-
-            if (usersCount == 0)
-                return true;
-            else if (usersCount > 1)
-                return false;
-            else  {
-                // only 1 user in db, check if it's the admin
-                UserManager mgr= new UserManager(db);
-                User u = mgr.getUserByNick("admin", true);
-                if (u != null)
-                    return true;    // success
-                else
-                    return false;   // only 1 user, and not the adminn
-            }
-        });
-
-        return succ;
-    }
-    
-    protected void initService() throws Exception {
-		System.out.println("initService");
-	}
-
-	protected void startService() throws Exception {
-		System.out.println("startService");
-		//generateData();
-		
-		// This function used  for creating bulk data in qi2g project
-		generateMockData();
-	}
-
-	protected void stopService() throws Exception {
-		System.out.println("stopService");
-	}
-
-	protected void destroyService() throws Exception {
-		System.out.println("destroyService");
-	}
-	
 	private void createFeeRecords() throws Exception {
 		for (Integer count = 1; count <= NO_OF_FEE_RECORDS; count++) {
 			Fee feePercentage = createFeePercentage(count.toString());
@@ -619,35 +255,44 @@ public class BulkDataGenerator extends QBeanSupport {
 	}
 
 	public void generateMockData() throws Exception {
+		log.info("Starting data population");
+		
+		log.info("Genarating Fee Records");
 		createFeeRecords();
+		
+		log.info("Creating Issuer Records");
 		createIssuer("First Transactility Republic Bank", "100001111", "Test Contact", "CTO",
 				"testIssuer@transactility.com");
 		initiateData();
 
 		Integer cpCount = 0;
 		Integer account = 0;
-		Integer brandNo = 0;
+		int brandNo=0;
 		for (String brand : schemeList) {
-			brandNo++;
+			
 			for (Entry<String, BigDecimal> map : velAmount.entrySet()) {
 				velProfList.add(createVP(brand + "_" + map.getKey(), "840", true, false, false, true, true, true, false,
 						0, 1, map.getValue()));
 			}
 
-			for (String cp : aList.get(brandNo - 1)) {
+			for (String cp : aList.get(brandNo)) {
+				log.info("Generating CardProduct for :"+brand +" , "+cp);
 				cpCount++;
-				String name = brand + "_" + cp;
+				String[] nameBin = cp.split(":");
+				String name = brand + "_" + nameBin[0];
 
 				// CardProduct -> CardHolder -> Card where cardproduct is used so order correct.
-				CardProduct cpn = createCardProduct(brand, name, "11.001.00", "31.001.00", cpCount.toString());
+				CardProduct cpn = createCardProduct(brand, name, nameBin[1], "11.001.00", "31.001.00", cpCount.toString());
 				cardProductList.add(cpn);
-
+				
+				log.info("Generating Cardholder under :"+cp);
 				for (Integer cardNo = 1; cardNo <= NO_OF_CARDHOLDER_RECORDS; cardNo++) {
 					account++;
 					cardHolderList.add(createCardHolders("CH", account.toString(), true));
 				}
 
 			}
+			brandNo++;
 		}
 
 		for (int i = 1; i <= NO_OF_CH_WITHOUT_CARD_RECORDS; i++) {
@@ -660,7 +305,7 @@ public class BulkDataGenerator extends QBeanSupport {
 	private CardHolder createCardHolders(String name, String count, Boolean createCard) throws Exception {
 		return DB.execWithTransaction(db -> {
 			CardHolder ch = new CardHolder();
-			String realId = "12345678";
+			String realId = realIdStart + (realIdCounter++);
 			ch.setRealId(realId);
 			ch.setFirstName(name + " FName " + rand.nextInt(50000));
 			ch.setMiddleName(name + " MName " + rand.nextInt(50000));
@@ -682,23 +327,81 @@ public class BulkDataGenerator extends QBeanSupport {
 			ch.setEmail("ch" + String.valueOf(rand.nextInt(50000)) + "@ts.com");
 			ch.setBirthDate(getBirthDate());
 
-			GLSession gls = new GLSession(db, "admin");
+			
+			
+		/*
+		 * DO IT LATER
 			CompositeAccount parentAccount = gls.getCompositeAccount("jcard", "21");
+			
+			//setting up Composite account for customer
+			CompositeAccount ca = new CompositeAccount();
+			ca.setCode("21." + realId);
+			ca.setParent(parentAccount);
+			ca.setRoot((CompositeAccount) gls.getChart("jcard"));
+			ca.setCreated(new Date());
+			ca.setType(Account.CREDIT);
+			gls.addAccount(parentAccount, ca);
+			
+			//setting up final accounts for customer
+			Map accounts = new HashMap();
+
 			FinalAccount cardHolderAccount = new FinalAccount();
-			cardHolderAccount.setCode("21." + count);
-			cardHolderAccount.setParent(parentAccount);
-			cardHolderAccount.setDescription("CardHolder " + realId);
+			cardHolderAccount.setCode("21." + realId + ".00");
+			cardHolderAccount.setParent(ca);
+			cardHolderAccount.setDescription("CardHolder " + realId +" SV Account");
 			cardHolderAccount.setRoot((CompositeAccount) gls.getChart("jcard"));
 			cardHolderAccount.setType(Account.CREDIT);
 			cardHolderAccount.setCreated(new Date());
-			Map accounts = new HashMap();
+			gls.addAccount(ca, cardHolderAccount);
 			accounts.put("00.840", cardHolderAccount);
+			
+			FinalAccount svAcct = new FinalAccount();
+			svAcct.setCode("21." + realId + ".10");
+			svAcct.setParent(ca);
+			svAcct.setDescription("CardHolder " + realId +" SV Savings");
+			svAcct.setRoot((CompositeAccount) gls.getChart("jcard"));
+			svAcct.setType(Account.CREDIT);
+			cardHolderAccount.setCreated(new Date());
+			gls.addAccount(ca, svAcct);
+			accounts.put("10.840", svAcct);
+
+			FinalAccount chkAcct = new FinalAccount();
+			chkAcct.setCode("21." + realId + ".20");
+			chkAcct.setParent(ca);
+			chkAcct.setDescription("CardHolder " + realId +" SV Checking");
+			chkAcct.setRoot((CompositeAccount) gls.getChart("jcard"));
+			chkAcct.setType(Account.CREDIT);
+			chkAcct.setCreated(new Date());
+			gls.addAccount(ca, chkAcct);
+			accounts.put("20.840", chkAcct);
+
+			FinalAccount refAcct = new FinalAccount();
+			refAcct.setCode("21." + realId + ".31");
+			refAcct.setParent(ca);
+			refAcct.setDescription("CardHolder " + realId +" SV Refunds");
+			refAcct.setRoot((CompositeAccount) gls.getChart("jcard"));
+			refAcct.setType(Account.CREDIT);
+			refAcct.setCreated(new Date());
+			gls.addAccount(ca, refAcct);
+			accounts.put("31.840", refAcct);
+	*/
+			/*
+			21.0000001.00
+			21.0000001.10
+			21.0000001.20
+			21.0000001.31
+			*/
+			Map accounts = new HashMap();
+			accounts.put("00.840", defaultAcct);
+			accounts.put("10.840", savingsAcct);
+			accounts.put("20.840", checkingAcct);
+			accounts.put("31.840", refundAcct);
 			ch.setAccounts(accounts);
-			db.save(cardHolderAccount);
+			db.save(ch);
 
 			if (createCard) {
-				Card card = createCard(db, cardProductList.get(rand.nextInt(cardProductList.size())), ch,
-						Integer.toString(cardNo++));
+				
+				Card card = createCard(db, cardProductList.get(rand.nextInt(cardProductList.size())), ch);
 				Set<Card> set = new HashSet<>();
 				set.add(card);
 				ch.setCards(set);
@@ -712,7 +415,7 @@ public class BulkDataGenerator extends QBeanSupport {
 
 	}
 
-	private CardProduct createCardProduct(String scheme, String name, String issuedAccount, String feeAccount,
+	private CardProduct createCardProduct(String scheme, String name, String bin, String issuedAccount, String feeAccount,
 			String code) throws Exception {
 		return (CardProduct) DB.execWithTransaction(db -> {
 			CardProduct cp = new CardProduct();
@@ -740,9 +443,10 @@ public class BulkDataGenerator extends QBeanSupport {
 			}
 			cp.setVelocityProfiles(selectedVel);
 
-			cp.setBin("554433");
-			cp.setPanStart("5544330000000000");
-			cp.setPanEnd("5544339999999999");
+			cp.setPanLength(16);
+			cp.setBin(bin);
+			cp.setPanStart(bin+"0000000000");
+			cp.setPanEnd(bin+"9999999999");
 			cp.setCardType(cardtypes.get(rand.nextInt(cardtypes.size())));
 			db.save(cp);
 			return cp;
@@ -819,10 +523,14 @@ public class BulkDataGenerator extends QBeanSupport {
 
 	public List<Issuer> getIssuers() {
 		try {
-			return DB.exec((db) -> {
+			Issuer issuer  = DB.exec((db) -> {
 				IssuerManager mgr = new IssuerManager(db);
-				return mgr.getAll();
+				return mgr.getIssuerById("67");
 			});
+			List<Issuer> list = new ArrayList<Issuer>();
+			list.add(issuer);
+			return list;
+			
 		} catch (Exception e) {
 			return null;
 		}
@@ -890,4 +598,97 @@ public class BulkDataGenerator extends QBeanSupport {
 
 		return new Date(randomMillisSinceEpoch);
 	}
+	
+	public static char calcLUHN (CharSequence p) {
+        int i, crc;
+
+        int odd = p.length() % 2;
+
+        for (i=crc=0; i<p.length(); i++) {
+            char c = p.charAt(i);
+            if (!Character.isDigit (c)) {
+                throw new IllegalArgumentException("Invalid PAN " + p);
+            }
+            c = (char) (c - '0');
+            if (i % 2 != odd)
+                crc+=(c*2) >= 10 ? ((c*2)-9) : (c*2);
+            else
+                crc+=c;
+        }
+
+        return (char) ((crc % 10 == 0 ? 0 : (10 - crc % 10)) + '0');
+    }
+	
+	
+	private void cleanOldData() throws Exception {
+		log.info("Started cleaning old generated data");
+		/*
+		 * 
+			delete  from tranlog_followups where id > 1399
+			delete  from tranlog where id > 1625
+			delete  from card where id > 1566
+			delete  from cardproduct_fees where cardproduct > 73;
+			delete  from fees where id > 8
+			delete  from cardholder_accounts where id > 1561
+			delete  from acct where id > 1631
+			delete  from cardholder where id > 1601
+			delete  from cardproduct_velocityprofiles where cardproduct > 73
+			delete  from velocity_profiles where id > 70
+			delete  from card_products where id > 73
+			delete  from issuers where id > 67
+		 */
+		deleteTableData(TranLogFollowUp.class.getName(), 1399);
+		deleteTableData(TranLog.class.getName(), 1625);
+		deleteTableData(Card.class.getName(), 1566);
+		deleteTableDataNative("cardproduct_fees", "cardproduct", 73);
+		deleteTableData(Fee.class.getName(), 8);
+		deleteTableDataNative("cardholder_accounts", "id", 1561);
+		deleteTableDataNative("acctlock", "account", 1631);
+		deleteTableDataNative("balance_cache", "account", 1631);
+		deleteTableDataNative("transentry", "account", 1631);
+		deleteTableData(Account.class.getName(), 1631);
+		deleteTableData(CardHolder.class.getName(), 1601);
+		deleteTableDataNative("cardproduct_velocityprofiles", "cardproduct", 73);
+		deleteTableData(VelocityProfile.class.getName(), 70);
+		deleteTableData(CardProduct.class.getName(), 73);
+		deleteTableData(Issuer.class.getName(), 67);
+		
+		log.info("Old generated data cleaned up");		
+	}
+	
+	
+	public void deleteTableData(String className, long id) throws Exception {
+		log.info("Deleting records from table :"+className + ", starting id :"+id);
+		
+		Class entityClass = Class.forName(className);
+        
+        DB.execWithTransaction(db -> {
+			CardProduct cp = new CardProduct();
+
+	        CriteriaBuilder cb = db.session().getCriteriaBuilder();
+
+	        CriteriaDelete delete = cb.createCriteriaDelete(entityClass);
+	        Root e = delete.from(entityClass);
+	 
+	        // set where clause
+	        delete.where(cb.greaterThan(e.get("id"), id));
+	        Query cq = db.session().createQuery(delete);
+	        
+	        cq.executeUpdate();
+			return null;
+		});
+    }
+	
+	
+	public void deleteTableDataNative(String tableName, String columnName, long value) throws Exception {
+		String query  = "delete from "+tableName + " where " + columnName + " > "+value;
+		log.info(query);
+        
+        DB.execWithTransaction(db -> {
+
+	        Query cq = db.session().createSQLQuery(query);
+	        cq.executeUpdate();
+			return null;
+		});
+    }
 }

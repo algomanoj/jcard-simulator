@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<txn-generator class="org.jpos.util.TransactionGenerator" enabled="true">
+	<property name="initial-delay" value="30000" />
+ 	<property name="txn-pause-interval" value="1000" />
+	<property name="mux"      value="mux.jcard" />
+	<property name="acquirer_id"      value="00000000001" />
+
+	<!-- Configuration data -->
+	<property name="mid" value="00000000001,00000000002,00000000003,00000000004,00000000005,00000000006,00000000007,00000000008,00000000009,00000000010" />
+	<property name="00000000001.tid" value="01000001,01000002,01000003,01000004,01000005,01000006,01000007,01000008,01000009,01000010" />
+	<property name="00000000002.tid" value="02000001,02000002,02000003,02000004,02000005,02000006,02000007,02000008,02000009,02000010" />
+	<property name="00000000003.tid" value="03000001,03000002,03000003,03000004,03000005,03000006,03000007,03000008,03000009,03000010" />
+	<property name="00000000004.tid" value="04000001,04000002,04000003,04000004,04000005,04000006,04000007,04000008,04000009,04000010" />
+	<property name="00000000005.tid" value="05000001,05000002,05000003,05000004,05000005,05000006,05000007,05000008,05000009,05000010" />
+	<property name="00000000006.tid" value="06000001,06000002,06000003,06000004,06000005,06000006,06000007,06000008,06000009,06000010" />
+	<property name="00000000007.tid" value="07000001,07000002,07000003,07000004,07000005,07000006,07000007,07000008,07000009,07000010" />
+	<property name="00000000008.tid" value="08000001,08000002,08000003,08000004,08000005,08000006,08000007,08000008,08000009,08000010" />
+	<property name="00000000009.tid" value="09000001,09000002,09000003,09000004,09000005,09000006,09000007,09000008,09000009,09000010" />
+	<property name="00000000010.tid" value="10000001,10000002,10000003,10000004,10000005,10000006,10000007,10000008,10000009,10000010" /> 
+
+	<property name="00000000001.details" value="TestMerchant        HENDERSON    97831    US" />
+	<property name="00000000002.details" value="TestMerchant        HENDERSON    97831    US" />
+	<property name="00000000003.details" value="TestMerchant        HENDERSON    97831    US" />
+	<property name="00000000004.details" value="PP*346543           647489       86053    US" />
+	<property name="00000000005.details" value="TestMerchant        HENDERSON    97831    US" />
+	<property name="00000000006.details" value="TestMerchant        HENDERSON    97831    US" />
+	<property name="00000000007.details" value="TestMerchant        HENDERSON    97831    US" />
+	<property name="00000000008.details" value="TestMerchant        HENDERSON    97831    US" />
+	<property name="00000000009.details" value="TRMerchant          New York City10015    US" />
+	<property name="00000000010.details" value="TestMerchant        HENDERSON    97831    US" />
+
+ 
+</txn-generator>

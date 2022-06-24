@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 
-<channel-adaptor name='jcard-channel' class="org.jpos.q2.iso.ChannelAdaptor" logger="Q2" realm="jcard-channel">
+<channel-adaptor name='jcard-channel' class="org.jpos.q2.iso.ChannelAdaptor" logger="Q2" realm="jcard-channel" enabled="true">
     <channel class="org.jpos.iso.channel.XMLChannel"
              packager="org.jpos.iso.packager.XML2003Packager" logger="Q2" realm="cmf-channel">
         <property name="host" value="localhost"/>
