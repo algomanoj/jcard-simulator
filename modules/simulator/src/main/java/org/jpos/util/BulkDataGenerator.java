@@ -22,6 +22,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.jpos.core.InvalidCardException;
 import org.jpos.ee.Card;
@@ -44,6 +45,7 @@ import org.jpos.ee.VelocityProfile;
 import org.jpos.gl.Account;
 import org.jpos.gl.CompositeAccount;
 import org.jpos.gl.FinalAccount;
+import org.jpos.gl.GLException;
 import org.jpos.gl.GLSession;
 import org.jpos.iso.ISODate;
 import org.jpos.iso.ISOException;
@@ -282,7 +284,7 @@ public class BulkDataGenerator extends QBeanSupport {
 				String name = brand + "_" + nameBin[0];
 
 				// CardProduct -> CardHolder -> Card where cardproduct is used so order correct.
-				CardProduct cpn = createCardProduct(brand, name, nameBin[1], "11.001.00", "31.001.00", cpCount.toString());
+				CardProduct cpn = createCardProduct(brand, name, nameBin[1], "11.001.00", "31.001.00","41.001.00", cpCount.toString());
 				cardProductList.add(cpn);
 				
 				log.info("Generating Cardholder under :"+cp);
@@ -416,10 +418,11 @@ public class BulkDataGenerator extends QBeanSupport {
 	}
 
 	private CardProduct createCardProduct(String scheme, String name, String bin, String issuedAccount, String feeAccount,
-			String code) throws Exception {
+			String lossesAct, String code) throws Exception {
 		return (CardProduct) DB.execWithTransaction(db -> {
 			CardProduct cp = new CardProduct();
-			cp.setIssuer(issuerList.get(rand.nextInt(issuerList.size())));
+			Issuer issuer=issuerList.get(rand.nextInt(issuerList.size()));
+			cp.setIssuer(issuer);
 			cp.setScheme(scheme);
 			cp.setName(name);
 			cp.setStartDate(ISODate.parseISODate("20050101000000"));
@@ -429,7 +432,13 @@ public class BulkDataGenerator extends QBeanSupport {
 			GLSession gls = new GLSession(db, "admin");
 			cp.setIssuedAccount(gls.getFinalAccount("jcard", issuedAccount));
 			cp.setFeeAccount(gls.getFinalAccount("jcard", feeAccount));
-
+			FinalAccount losAct=gls.getFinalAccount("jcard", lossesAct);
+			if(losAct == null) {
+				losAct=createLossAccount(issuer,"jcard", lossesAct,gls);
+			}
+			cp.setLossesAccount(losAct);
+			
+			
 			Set<Fee> fees = new HashSet<>();
 			feeList = getFees();
 			Random rand = new Random();
@@ -453,6 +462,28 @@ public class BulkDataGenerator extends QBeanSupport {
 		});
 
 	}
+
+	private FinalAccount createLossAccount(Issuer issuer, String string, String lossesAct,GLSession gls) {
+		FinalAccount newAcct= new FinalAccount();
+		try {
+			Account parent= getRefreshedAccount(issuer.getLossesAccount());
+			newAcct.setCode(lossesAct);
+			newAcct.setCreated(new Date());
+			newAcct.setRoot(parent.getRoot());
+			newAcct.setType(parent.getType());
+	        gls.session().refresh(parent);
+			gls.addAccount((CompositeAccount) parent, newAcct);
+			} catch (Exception  e) {
+				e.printStackTrace();
+			}
+	
+	        return (FinalAccount) newAcct;
+	}
+	
+	private Account getRefreshedAccount (Account acct) throws Exception {
+        return DB.exec(db-> (acct != null) ? db.session().get(Account.class, acct.getId()) : null);
+    }
+
 
 	private VelocityProfile createVP(String name, String currencyCode, boolean scopeCard, boolean scopeAccount,
 			boolean approvalsOnly, boolean onPurchase, boolean onWithdrawal, boolean onTransfer, boolean onCredit,
@@ -643,10 +674,10 @@ public class BulkDataGenerator extends QBeanSupport {
 		deleteTableDataNative("cardproduct_fees", "cardproduct", 73);
 		deleteTableData(Fee.class.getName(), 8);
 		deleteTableDataNative("cardholder_accounts", "id", 1561);
-		deleteTableDataNative("acctlock", "account", 1631);
-		deleteTableDataNative("balance_cache", "account", 1631);
-		deleteTableDataNative("transentry", "account", 1631);
-		deleteTableData(Account.class.getName(), 1631);
+		deleteTableDataNative("acctlock", "account", 1651);
+		deleteTableDataNative("balance_cache", "account", 1651);
+		deleteTableDataNative("transentry", "account", 1651);
+		deleteTableData(Account.class.getName(), 1651);
 		deleteTableData(CardHolder.class.getName(), 1601);
 		deleteTableDataNative("cardproduct_velocityprofiles", "cardproduct", 73);
 		deleteTableData(VelocityProfile.class.getName(), 70);
