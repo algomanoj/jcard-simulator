@@ -85,6 +85,7 @@ public class TransactionGeneratorView extends Composite<VerticalLayout> {
 		txnStatus = new TextField();
 		txnStatus.setWidth("100%");
 		txnStatus.setValue(defaultStatus.name());
+		txnStatus.setReadOnly(true);
 		FormLayout leftFormLayout = new FormLayout();
 		leftFormLayout.addFormItem(txnStatus,QIUtils.getCaptionFromId("field.txn.gen.status"));
 		return leftFormLayout;
