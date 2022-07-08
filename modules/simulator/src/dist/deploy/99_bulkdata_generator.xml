@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<data-generator class="org.jpos.util.BulkDataGenerator" enabled="true">
+<data-generator class="org.jpos.util.BulkDataGenerator" enabled="false">
  <property name="clean-up" value="true" />
  <property name="generate-data" value="true" />
 </data-generator>

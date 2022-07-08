@@ -1,0 +1,12 @@
+
+<server class="org.jpos.q2.iso.QServer" logger="@logger@" name="debit-server" realm="debit-server" >
+
+    <attr name="port" type="java.lang.Integer">9998</attr>
+
+    <channel class="org.jpos.iso.channel.XMLChannel" logger="@logger@"
+             realm="debit-server-channel"
+             packager="org.jpos.iso.packager.XML2003Packager"/>
+
+    <request-listener class="org.jpos.util.RequestHandler" logger="@logger@" realm="request-handler" />
+    
+</server>

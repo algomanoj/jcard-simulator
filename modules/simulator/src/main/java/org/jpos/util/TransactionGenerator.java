@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Random;
 
 import org.hibernate.Criteria;
-import org.hibernate.HibernateException;
+import org.hibernate.criterion.Projections;
 import org.jpos.ee.Card;
 import org.jpos.ee.DB;
 import org.jpos.iso.ISOAmount;
@@ -37,7 +37,9 @@ public class TransactionGenerator extends QBeanSupport implements Runnable {
 	List<String> merchants;
 	Map<String, ISOMsg> merchantDetail = new HashMap<>();
 	Map<String, List<String>> terminals = new HashMap<>();
-
+	String runningStatus = "STOPPED";
+	int batchSize = 50;
+	
 	public void initService() throws Exception {
 		db = new DB();
 		db.open();
@@ -66,36 +68,50 @@ public class TransactionGenerator extends QBeanSupport implements Runnable {
 		ISOUtil.sleep(initialDelay);
 		
 		log.info("Starting txns ");
+		NameRegistrar.register (getName (), this);
 		new Thread(this).start();
 	}
 
+    protected void stopService () throws Exception {
+        NameRegistrar.unregister (getName ());
+    }
+
+    
 	public void run() {
 
 		while (running()) {
-			try {
-				MUX mux = NameRegistrar.getIfExists("mux.jcard");
-				int start = 7;
-				Criteria crit = db.session().createCriteria(Card.class).setFirstResult(start).setMaxResults(100);
-
-				List<Card> list = crit.list();
-				for (Card card : list) {
-
-					// Get the active card from database
-					ISOMsg req = createRequest(card);
-					ISOMsg resp = mux.request(req, 2000);
+			
+			Criteria criteria = db.session().createCriteria(Card.class).setProjection(Projections.rowCount());
+			Integer cardCount = ((Long)criteria.uniqueResult()).intValue();
+			log.info("Total cards found in system "+ cardCount);
+			Random random = new Random();
+			if("RUNNING".equalsIgnoreCase(runningStatus)) {
+				try {
+					MUX mux = NameRegistrar.getIfExists("mux.jcard");
+					int start = random.nextInt(cardCount);
 					
-					ISOUtil.sleep(txnPauseinterval);				
+					Criteria crit = db.session().createCriteria(Card.class).setFirstResult(start).setMaxResults(batchSize);
+					
+					List<Card> list = crit.list();
+					for (Card card : list) {
+						
+						// Get the active card from database
+						ISOMsg req = createRequest(card);
+						ISOMsg resp = mux.request(req, 2000);
+						
+						ISOUtil.sleep(txnPauseinterval);				
+					}
+					start = start + list.size();
+					if (list.size() < batchSize)
+						start = random.nextInt(cardCount);
+					
+				} catch (Throwable t) {
+					getLog().error(t);
+					ISOUtil.sleep(1000);
+				} finally {
 				}
-				start = start + list.size();
-				if (list.size() < 100)
-					start = 8;
-
-			} catch (Throwable t) {
-				getLog().error(t);
-				ISOUtil.sleep(1000);
-			} finally {
+				ISOUtil.sleep(txnPauseinterval*5);
 			}
-			ISOUtil.sleep(txnPauseinterval*5);
 		}
 
 	}
@@ -169,6 +185,14 @@ public class TransactionGenerator extends QBeanSupport implements Runnable {
 			card.setSecureMap(secureMap);
 		}
 		return secureMap;
+	}
+	
+	public void setRunningStatus(String status) {
+		runningStatus = status;
+	}
+
+	public boolean isRunning() {
+		return "RUNNING".equalsIgnoreCase(runningStatus);
 	}
 
 }
