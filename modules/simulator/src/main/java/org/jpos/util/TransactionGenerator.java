@@ -79,12 +79,13 @@ public class TransactionGenerator extends QBeanSupport implements Runnable {
     
 	public void run() {
 
+		Criteria criteria = db.session().createCriteria(Card.class).setProjection(Projections.rowCount());
+		Integer cardCount = ((Long)criteria.uniqueResult()).intValue();
+		log.info("Total cards found in system "+ cardCount);
+		Random random = new Random();
+
 		while (running()) {
 			
-			Criteria criteria = db.session().createCriteria(Card.class).setProjection(Projections.rowCount());
-			Integer cardCount = ((Long)criteria.uniqueResult()).intValue();
-			log.info("Total cards found in system "+ cardCount);
-			Random random = new Random();
 			if("RUNNING".equalsIgnoreCase(runningStatus)) {
 				try {
 					MUX mux = NameRegistrar.getIfExists("mux.jcard");
