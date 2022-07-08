@@ -31,11 +31,13 @@
 		
 		<section name="Demo" />
 		<option name="transact" action="transact" />
+		<option name="transactGenerator" action="generateTxn" />
 
 	</sidebar>
 
 	<view route="home" class="org.jpos.qi.views.home.HomeView" perm="*" sidebar="system" />
 
+	<view route="generateTxn" class="org.jpos.qi.views.demo.TransactionGeneratorView" perm="*" sidebar="jcard" />
 	
 	
 

@@ -86,7 +86,6 @@ public class TransactView extends Composite<VerticalLayout> {
 	private TextField termIdField;
 	private TextField midField;
 	private TextField merchDetField;
-	private Label tranTypeLabel;
 	Button txnBtn;
 
 	private Label statusLbl;
@@ -120,8 +119,6 @@ public class TransactView extends Composite<VerticalLayout> {
 		TranTypeData emd = new TranTypeData("100", "00");
 		tranTypeData.put("Authorization", emd);
 
-		tranTypeLabel = new Label();
-		tranTypeLabel.setVisible(false);
 		/*
 		emd = new TranTypeData("100", "01");
 		tranTypeData.put("Authorization (Cash Withdrawal)", emd);
@@ -303,7 +300,7 @@ public class TransactView extends Composite<VerticalLayout> {
 		hl.add(leftFormLayout, rightFormLayout);
 		leftFormLayout.add(cardNumberField, expDateField, cvvField, pinField, stanField, rrnField,midField);// amountField, currencyField);
 		rightFormLayout.add( amountField, currencyField,entryModeField, merchDetField, termIdField, tranTypeField, 
-				tranTypeLabel, txnBtn);
+			 txnBtn);
 		
 		
 		return hl;
@@ -486,15 +483,22 @@ public class TransactView extends Composite<VerticalLayout> {
 	private ComboBox<String> createEntryTypeField(String message) {
 		ComboBox<String> field = new ComboBox<>(QIUtils.getCaptionFromId(message));
 		field.setItems(tranTypeData.keySet().stream());
-		field.setPlaceholder(tranTypeData.keySet().iterator().next());
+		String key=tranTypeData.keySet().iterator().next();
+		TranTypeData tranTypeD = tranTypeData.get(key);
+		if (tranTypeD != null) {
+			field.setLabel("Transaction Type ( MTI: " + tranTypeD.getMti() + " Processing Code: " + tranTypeD.getTtc()+ " )");
+		}else {
+			field.setLabel("Transaction Type ");
+		}
 		field.setWidth("100%");
 		field.setRequiredIndicatorVisible(true);
 		field.addValueChangeListener(event -> {
 			resetScreen();
 			TranTypeData emd = tranTypeData.get(event.getValue());
 			if (emd != null) {
-				tranTypeLabel.setVisible(true);
-				tranTypeLabel.setText("MTI: " + emd.getMti() + " Processing Code: " + emd.getTtc());
+				field.setLabel("Transaction Type ( MTI: " + emd.getMti() + " Processing Code: " + emd.getTtc()+ " )");
+			}else {
+				field.setLabel("Transaction Type ");
 			}
 		});
 		field.setValue(tranTypeData.keySet().iterator().next());
