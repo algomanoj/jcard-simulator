@@ -1,20 +1,23 @@
 package org.jpos.qi.views.demo;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 
 import org.jpos.core.Configuration;
-import org.jpos.iso.*;
+import org.jpos.iso.ISOAmount;
+import org.jpos.iso.ISODate;
+import org.jpos.iso.ISOException;
+import org.jpos.iso.ISOMsg;
+import org.jpos.iso.ISOUtil;
+import org.jpos.iso.MUX;
 import org.jpos.iso.PosDataCode.POSEnvironment;
-import org.jpos.q2.iso.QMUX;
 import org.jpos.qi.QI;
 import org.jpos.qi.QIUtils;
 import org.jpos.util.NameRegistrar;
-import org.jpos.util.NameRegistrar.NotFoundException;
-import java.math.BigDecimal;
-import com.vaadin.flow.component.Component;
+
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
@@ -86,6 +89,7 @@ public class TransactView extends Composite<VerticalLayout> {
 	private TextField termIdField;
 	private TextField midField;
 	private TextField merchDetField;
+	private Label tranTypeLabel;
 	Button txnBtn;
 
 	private Label statusLbl;
@@ -119,6 +123,8 @@ public class TransactView extends Composite<VerticalLayout> {
 		TranTypeData emd = new TranTypeData("100", "00");
 		tranTypeData.put("Authorization", emd);
 
+		tranTypeLabel = new Label();
+		tranTypeLabel.setVisible(false);
 		/*
 		emd = new TranTypeData("100", "01");
 		tranTypeData.put("Authorization (Cash Withdrawal)", emd);
@@ -300,7 +306,7 @@ public class TransactView extends Composite<VerticalLayout> {
 		hl.add(leftFormLayout, rightFormLayout);
 		leftFormLayout.add(cardNumberField, expDateField, cvvField, pinField, stanField, rrnField,midField);// amountField, currencyField);
 		rightFormLayout.add( amountField, currencyField,entryModeField, merchDetField, termIdField, tranTypeField, 
-			 txnBtn);
+				tranTypeLabel, txnBtn);
 		
 		
 		return hl;
@@ -483,22 +489,15 @@ public class TransactView extends Composite<VerticalLayout> {
 	private ComboBox<String> createEntryTypeField(String message) {
 		ComboBox<String> field = new ComboBox<>(QIUtils.getCaptionFromId(message));
 		field.setItems(tranTypeData.keySet().stream());
-		String key=tranTypeData.keySet().iterator().next();
-		TranTypeData tranTypeD = tranTypeData.get(key);
-		if (tranTypeD != null) {
-			field.setLabel("Transaction Type ( MTI: " + tranTypeD.getMti() + " Processing Code: " + tranTypeD.getTtc()+ " )");
-		}else {
-			field.setLabel("Transaction Type ");
-		}
+		field.setPlaceholder(tranTypeData.keySet().iterator().next());
 		field.setWidth("100%");
 		field.setRequiredIndicatorVisible(true);
 		field.addValueChangeListener(event -> {
 			resetScreen();
 			TranTypeData emd = tranTypeData.get(event.getValue());
 			if (emd != null) {
-				field.setLabel("Transaction Type ( MTI: " + emd.getMti() + " Processing Code: " + emd.getTtc()+ " )");
-			}else {
-				field.setLabel("Transaction Type ");
+				tranTypeLabel.setVisible(true);
+				tranTypeLabel.setText("MTI: " + emd.getMti() + " Processing Code: " + emd.getTtc());
 			}
 		});
 		field.setValue(tranTypeData.keySet().iterator().next());

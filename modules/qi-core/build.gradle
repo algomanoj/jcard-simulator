@@ -10,8 +10,6 @@ dependencies {
     compileOnly libraries.jcard
     implementation libraries.crudui
     implementation ("com.vaadin:vaadin-renderer-flow:${vaadinVersion}")
-    //implementation ("com.vaadin:vaadin-charts-flow:${vaadinVersion}")
-   	//implementation ("com.github.appreciated:apexcharts:2.0.0-beta13")
 }
 
 apply from: "${rootProject.projectDir}/jpos-app.gradle"
