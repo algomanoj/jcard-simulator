@@ -128,6 +128,7 @@ public class TransactView extends Composite<VerticalLayout> {
 		tranTypeData.put("Refund", new TranTypeData("200", "20"));
 		tranTypeData.put("Deposit", new TranTypeData("200", "21"));
 		tranTypeData.put("Balance Inquiry", new TranTypeData("100", "00"));
+		
 		/*
 		emd = new TranTypeData("100", "01");
 		tranTypeData.put("Authorization (Cash Withdrawal)", emd);
