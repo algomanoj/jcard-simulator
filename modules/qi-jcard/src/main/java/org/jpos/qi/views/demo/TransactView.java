@@ -116,9 +116,18 @@ public class TransactView extends Composite<VerticalLayout> {
 		}
 
 		tranTypeData = new HashMap<>();
-		TranTypeData emd = new TranTypeData("100", "00");
-		tranTypeData.put("Authorization", emd);
-
+		//TranTypeData emd = new TranTypeData("100", "00");
+		//tranTypeData.put("Authorization", emd);
+		
+		tranTypeData.put("Balance Inquiry", new TranTypeData("100", "30"));
+		tranTypeData.put("Authorization", new TranTypeData("100", "00"));
+		tranTypeData.put("Authorization Refund", new TranTypeData("100", "20"));
+		tranTypeData.put("Purchase", new TranTypeData("200", "00"));
+		tranTypeData.put("Cash Withdrawal", new TranTypeData("200", "01"));
+		tranTypeData.put("Transfer", new TranTypeData("200", "40"));
+		tranTypeData.put("Refund", new TranTypeData("200", "20"));
+		tranTypeData.put("Deposit", new TranTypeData("200", "21"));
+		tranTypeData.put("Balance Inquiry", new TranTypeData("100", "00"));
 		/*
 		emd = new TranTypeData("100", "01");
 		tranTypeData.put("Authorization (Cash Withdrawal)", emd);
@@ -139,8 +148,8 @@ public class TransactView extends Composite<VerticalLayout> {
 		tranTypeData.put("Balance Inquiry", emd);
 		*/
 		
-		emd = new TranTypeData("200", "00");
-		tranTypeData.put("POS Purchase", emd);
+//		emd = new TranTypeData("200", "00");
+//		tranTypeData.put("POS Purchase", emd);
 
 		/*
 		emd = new TranTypeData("200", "01");
