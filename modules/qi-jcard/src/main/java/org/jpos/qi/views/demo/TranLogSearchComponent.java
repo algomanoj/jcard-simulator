@@ -17,7 +17,7 @@ import org.jpos.ee.CardProduct;
 import org.jpos.iso.ISOUtil;
 //import org.jpos.qi.JCardQIHelper;
 import org.jpos.qi.QI;
-import org.jpos.qi.core.ee.TranLogSimulatorFilter;
+import org.jpos.qi.core.ee.TranLogFilter;
 import org.jpos.qi.services.TranLogHelper;
 import org.jpos.qi.util.DateRange;
 
@@ -127,8 +127,8 @@ public abstract class TranLogSearchComponent extends VerticalLayout {
 		refresh();
 	}
 
-	public TranLogSimulatorFilter getValue() {
-		TranLogSimulatorFilter filter = new TranLogSimulatorFilter();
+	public TranLogFilter getValue() {
+		TranLogFilter filter = new TranLogFilter();
 		//filter.setApproved(getApprovedCheckBox().getValue());
 		//filter.setRejected(getRejectedCheckBox().getValue());
 		//filter.setPending(getPendingCheckBox().getValue());

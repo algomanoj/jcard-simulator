@@ -19,7 +19,7 @@ import org.jpos.ee.TranLog;
 import org.jpos.qi.QI;
 import org.jpos.qi.ViewConfig;
 import org.jpos.qi.ViewConfig.Position;
-import org.jpos.qi.core.ee.TranLogSimulatorFilter;
+import org.jpos.qi.core.ee.TranLogFilter;
 import org.jpos.qi.services.QIHelper;
 import org.jpos.qi.services.SearchHelper;
 import org.jpos.qi.services.TranLogHelper;
@@ -613,7 +613,7 @@ public class TranLogView extends QIEntityView<TranLog> {
 	private void changeTranStatus(String transectionStatus) {
 		System.out.println("crud.getGrid().getSelectedItems().size():"+crud.getGrid().getSelectedItems().size());
 	}
-	public void refreshGrid(TranLogSimulatorFilter filter) {
+	public void refreshGrid(TranLogFilter filter) {
 		ConfigurableFilterDataProvider wrapper = (ConfigurableFilterDataProvider) crud.getGrid().getDataProvider();
 		if(tranLogSearchComponent.getDatePicker()!=null && tranLogSearchComponent.getDatePicker().getValue()!=null) {
 			LocalDate lclDate = tranLogSearchComponent.getDatePicker().getValue();

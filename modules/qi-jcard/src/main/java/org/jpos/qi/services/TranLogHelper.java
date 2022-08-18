@@ -23,8 +23,8 @@ import org.jpos.iso.PosDataCode;
 import org.jpos.iso.packager.XMLPackager;
 import org.jpos.qi.QICrudFormFactory;
 import org.jpos.qi.ViewConfig;
-import org.jpos.qi.core.ee.TranLogSimulatorFilter;
-import org.jpos.qi.core.ee.TranLogSimulatorManager;
+import org.jpos.qi.core.ee.TranLogFilter;
+import org.jpos.qi.core.ee.TranLogManager;
 import org.jpos.qi.util.DateRange;
 import com.vaadin.flow.data.provider.ConfigurableFilterDataProvider;
 import com.vaadin.flow.data.provider.DataProvider;
@@ -101,7 +101,7 @@ public class TranLogHelper extends QIHelper {
     @Override
     public Stream getAll(int offset, int limit, Map<String, Boolean> orders) throws Exception {
         List<TranLog> list = DB.exec(db -> {
-            TranLogSimulatorManager mgr = new TranLogSimulatorManager(db);
+            TranLogManager mgr = new TranLogManager(db);
             return mgr.getAll(offset,limit,orders);
         });
         return list.stream();
@@ -114,25 +114,25 @@ public class TranLogHelper extends QIHelper {
 
     public Stream getAll(int offset, int limit, Map<String, Boolean> orders, DateRange filter, Card card) throws Exception {
         List<TranLog> list =DB.exec(db -> {
-            TranLogSimulatorManager mgr;
+            TranLogManager mgr;
             if (filter != null && card != null) {
-                mgr = new TranLogSimulatorManager(db, filter.getStart(), filter.getEnd(), card);
+                mgr = new TranLogManager(db, filter.getStart(), filter.getEnd(), card);
             } else if (filter != null) {
-                mgr = new TranLogSimulatorManager(db, filter.getStart(), filter.getEnd());
+                mgr = new TranLogManager(db, filter.getStart(), filter.getEnd());
             } else if (card != null) {
-                mgr = new TranLogSimulatorManager(db, null, null, card);
+                mgr = new TranLogManager(db, null, null, card);
             } else
-                mgr = new TranLogSimulatorManager(db);
+                mgr = new TranLogManager(db);
             return mgr.getAll(offset,limit,orders);
         });
         return list.stream();
      }
     
     public ConfigurableFilterDataProvider getDataProvider () {
-        DataProvider<TranLog, TranLogSimulatorFilter> dataProvider =
+        DataProvider<TranLog, TranLogFilter> dataProvider =
           DataProvider.fromFilteringCallbacks(
             query -> {
-                TranLogSimulatorFilter filter = query.getFilter().orElse(null);
+                TranLogFilter filter = query.getFilter().orElse(null);
                 try {
                     return DB.exec(db -> {
                         Map<String,Boolean> orders = new HashMap<>();
@@ -141,7 +141,7 @@ public class TranLogHelper extends QIHelper {
                            orders.put(order.getSorted(), order.getDirection() == SortDirection.DESCENDING);
                         }
                         orders.put("id", false);
-                        TranLogSimulatorManager mgr = filter != null ? new TranLogSimulatorManager(db, filter) : new TranLogSimulatorManager(db);
+                        TranLogManager mgr = filter != null ? new TranLogManager(db, filter) : new TranLogManager(db);
                         return mgr.getAll(query.getOffset(), query.getLimit(), orders).stream();
                     });
                 } catch (Exception e) {
@@ -150,10 +150,16 @@ public class TranLogHelper extends QIHelper {
                 }
             },
             query -> {
-                TranLogSimulatorFilter filter = query.getFilter().orElse(null);
+                TranLogFilter filter = query.getFilter().orElse(null);
                 try {
                     return DB.exec(db -> {
-                        TranLogSimulatorManager mgr = filter != null ? new TranLogSimulatorManager(db, filter) : new TranLogSimulatorManager(db);
+                    	TranLogManager mgr = null;
+                    	if(filter != null) {
+                    		mgr = new TranLogManager(db, filter);
+                    	} else {
+                    		mgr = new TranLogManager(db);
+                    	}
+                    	//TranLogManager mgr = filter != null ? new TranLogManager(db, filter) : new TranLogManager(db);
                         return mgr.getItemCount();
                     });
                 } catch (Exception e) {
@@ -169,7 +175,7 @@ public class TranLogHelper extends QIHelper {
     @Override
     public int getItemCount() throws Exception {
         return DB.exec(db -> {
-            TranLogSimulatorManager mgr = new TranLogSimulatorManager(db);
+            TranLogManager mgr = new TranLogManager(db);
             return mgr.getItemCount();
         });
     }
@@ -242,7 +248,7 @@ public class TranLogHelper extends QIHelper {
         return null;
     }
     
-    public List<TranLog> getTlList(TranLogSimulatorFilter filter) {
+    public List<TranLog> getTlList(TranLogFilter filter) {
     	try {
     		return DB.exec(db -> {
     			/*
@@ -251,7 +257,7 @@ public class TranLogHelper extends QIHelper {
 		        Map<String,Boolean> orders = new HashMap<>();
 		        orders.put("id", false);
     			 */
-		        TranLogSimulatorManager mgr = filter != null ? new TranLogSimulatorManager(db, filter) : new TranLogSimulatorManager(db);
+		        TranLogManager mgr = filter != null ? new TranLogManager(db, filter) : new TranLogManager(db);
 		        return mgr.getAll(0, -1, null);
     		});
         } catch (Exception e) {
@@ -261,7 +267,7 @@ public class TranLogHelper extends QIHelper {
     }
     public List<TranLog> getTlList(DateRange dr) { 
     	List<TranLog> tranLogs = new ArrayList<>();
-    	TranLogSimulatorFilter tranLogFilter =  new TranLogSimulatorFilter();
+    	TranLogFilter tranLogFilter =  new TranLogFilter();
     	if(dr!=null) {
         	tranLogFilter.setStart(dr.getStart());
         	tranLogFilter.setEnd(dr.getEnd());
