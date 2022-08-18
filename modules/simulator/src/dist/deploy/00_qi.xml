@@ -32,7 +32,7 @@
 		<section name="Demo" />
 		<option name="transact" action="transact" />
 		<option name="transactGenerator" action="generateTxn" />
-
+		<option name="tranlog" action="tranlog"/>
 	</sidebar>
 
 	<view route="home" class="org.jpos.qi.views.home.HomeView" perm="*" sidebar="system" />
@@ -52,4 +52,72 @@
 		<attribute name="journal" column="false" read-only="true" />
 		<attribute name="entries" column="false" />
 	</view>
+	
+    <view route="tranlog" class="org.jpos.qi.views.demo.TranLogView" perm="sysadmin" sidebar="jcard">
+		<property name="entityName" value="tranlog"/>
+		<property name="layer" value="858"/>
+		<property name="layer" value="840"/>
+		<!--Request Data-->
+		<attribute name="id" position="left" expand-ratio="1"/>
+		<attribute name="date" position="left" expand-ratio="3"/>
+		<attribute name="itc" position="left" expand-ratio="2"/>
+		<attribute name="stan" position="left" column="false"/>
+		<attribute name="card" position="left" expand-ratio="3"/>
+		<attribute name="cardProduct" position="left" column="false"/>
+		<attribute name="authorizingNetwork" position="left" column="false"/>
+		<attribute name="acquirer" position="left" column="false"/>
+		<attribute name="mid" position="left" column="true"/>
+		<attribute name="mcc" position="left" column="false"/>
+		<attribute name="tid" position="left" column="false"/>
+		<attribute name="localId" position="left" column="false"/>
+		<attribute name="pdc" position="left" column="false"/>
+		<!--Response Data-->
+		<attribute name="irc" position="right" expand-ratio="1"/>
+		<attribute name="approvalNumber" position="right"/>
+		<attribute name="displayMessage" position="right" expand-ratio="3"/>
+		<attribute name="extrc" position="right" expand-ratio="3" column="false"/>
+		<attribute name="rrn" position="right" column="false"/>
+		<attribute name="responseCode" position="right" column="false"/>
+		<attribute name="rc" position="right" column="false"/>
+		<!--Amount Data-->
+		<attribute name="amount" position="left" expand-ratio="1"/>
+		<attribute name="currencyCode" position="left"/>
+		<attribute name="replacementAmount" position="left" column="false"/>
+
+		<attribute name="additionalAmount" position="left" column="false"/>
+		<attribute name="acquirerFee" position="left" column="false"/>
+		<attribute name="issuerFee" position="left" column="false"/>
+		<attribute name="returnedBalances" position="left" column="false"/>
+		<!--Additional Data-->
+		<attribute name="refId" position="right" column="false" link="tranlog"/>
+		<attribute name="reversalId" position="right" column="false" link="tranlog"/>
+		<attribute name="completionId" position="right" column="false" link="tranlog"/>
+		<attribute name="voidId" position="right" column="false" link="tranlog"/>
+		<attribute name="cardHolderId" position="right" column="false" link="cardholders"/>
+		<attribute name="accountCode" position="right" column="false"/>
+		<attribute name="account2Code" position="right" column="false"/>
+		<attribute name="node" position="right" column="false"/>
+		<attribute name="functionCode" position="right" column="false"/>
+		<attribute name="reasonCode" position="right" column="false"/>
+		<attribute name="batchNumber" position="right" column="false"/>
+		<attribute name="ss" position="right" column="false"/>
+		<attribute name="ssData" position="right" column="false"/>
+		<attribute name="originalItc" position="right" column="false"/>
+		<attribute name="duration" position="right" column="false"/>
+		<attribute name="outstanding" position="right" column="false"/>
+		<attribute name="transmissionDate" position="right" column="false"/>
+		<attribute name="localTransactionDate" position="right" column="false"/>
+		<attribute name="captureDate" position="right" column="false"/>
+		<attribute name="settlementDate" position="right" column="false"/>
+		<attribute name="caName" position="right" column="false"/>
+		<attribute name="caAddress" position="right" column="false"/>
+		<attribute name="caCity" position="right" column="false"/>
+		<attribute name="caRegion" position="right" column="false"/>
+		<attribute name="caPostalCode" position="right" column="false"/>
+		<attribute name="caCountry" position="right" column="false"/>
+		<attribute name="caPhone" position="right" column="false"/>
+		<attribute name="additionalData" position="right" column="false"/>
+		<attribute name="tags" position="right" column="false"/>
+		<attribute name="glTransaction" position="bottom" column="false"/>
+    </view>
 </xml-config>

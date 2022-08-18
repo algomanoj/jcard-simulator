@@ -120,72 +120,19 @@ public class TransactView extends Composite<VerticalLayout> {
 		}
 
 		tranTypeData = new HashMap<>();
-		TranTypeData emd = new TranTypeData("100", "00");
-		tranTypeData.put("Authorization", emd);
-
+		tranTypeData.put("Balance Inquiry", new TranTypeData("100", "30"));
+		tranTypeData.put("Authorization", new TranTypeData("100", "00"));
+		tranTypeData.put("Authorization Refund", new TranTypeData("100", "20"));
+		tranTypeData.put("Purchase", new TranTypeData("200", "00"));
+		tranTypeData.put("Cash Withdrawal", new TranTypeData("200", "01"));
+		tranTypeData.put("Transfer", new TranTypeData("200", "40"));
+		tranTypeData.put("Refund", new TranTypeData("200", "20"));
+		tranTypeData.put("Deposit", new TranTypeData("200", "21"));
+		
 		tranTypeLabel = new Label();
 		tranTypeLabel.setVisible(false);
-		/*
-		emd = new TranTypeData("100", "01");
-		tranTypeData.put("Authorization (Cash Withdrawal)", emd);
-
-		emd = new TranTypeData("100", "02");
-		tranTypeData.put("Authorization Void (Goods and Services)", emd);
-
-		emd = new TranTypeData("100", "09");
-		tranTypeData.put("Authorization (Purchase with cashback)", emd);
-
-		emd = new TranTypeData("100", "20");
-		tranTypeData.put("Refund/Return (Authorization / Balance Inquiry)", emd);
-
-		emd = new TranTypeData("100", "22");
-		tranTypeData.put("Refund/Return Void", emd);
-
-		emd = new TranTypeData("100", "30");
-		tranTypeData.put("Balance Inquiry", emd);
-		*/
-		
-		emd = new TranTypeData("200", "00");
-		tranTypeData.put("POS Purchase", emd);
-
-		/*
-		emd = new TranTypeData("200", "01");
-		tranTypeData.put("Cash Withdrawal", emd);
-
-		emd = new TranTypeData("200", "02");
-		tranTypeData.put("Void", emd);
-
-		emd = new TranTypeData("200", "09");
-		tranTypeData.put("POS Purchase With Cashback", emd);
-
-		emd = new TranTypeData("200", "20");
-		tranTypeData.put("Refund / Return", emd);
-
-		emd = new TranTypeData("200", "21");
-		tranTypeData.put("Payment / Deposit / Refresh", emd);
-
-		emd = new TranTypeData("200", "40");
-		tranTypeData.put("Account Transfer", emd);
-
-		emd = new TranTypeData("220", "00");
-		tranTypeData.put("Purchase Advice", emd);
-
-		emd = new TranTypeData("220", "20");
-		tranTypeData.put("Refund / Return Advice", emd);
-
-		emd = new TranTypeData("304", "72");
-		tranTypeData.put("Card Activation", emd);
-
-		emd = new TranTypeData("304", "7S");
-		tranTypeData.put("Refund / Return Advice", emd);
-		*/
-		
-		/*
-		 * emd = new TranTypeData("420", "XX"); tranTypeData.put("Reversal", emd);
-		 */
 
 		app = QI.getQI();
-
 		
 	}
 	
