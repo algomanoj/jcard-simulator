@@ -48,6 +48,7 @@ public abstract class TranLogSearchComponent extends VerticalLayout {
 	private DatePicker datePicker;
 	
 	private Button refreshButton;
+	private Button changeTxnStatusButton;
 
 	private ComboBox<String> transectionTypesCombo = new ComboBox<>();
 
@@ -75,13 +76,13 @@ public abstract class TranLogSearchComponent extends VerticalLayout {
 		row1.setMargin(false);
 
 		panField = new TextField();
-		panField.setPlaceholder(app.getMessage("pan"));
-		panField.getStyle().set("margin-right", "10px");
+		panField.setPlaceholder(app.getMessage("PAN"));
+		panField.getStyle().set("margin-right", "10px").set("width", "140px");
 		rrnField = new TextField();
-		rrnField.setPlaceholder(app.getMessage("rrn"));
-		rrnField.getStyle().set("margin-right", "10px");
+		rrnField.setPlaceholder(app.getMessage("RRN"));
+		rrnField.getStyle().set("margin-right", "10px").set("width", "140px");
 		datePicker = new DatePicker();
-		datePicker.getStyle().set("margin-right", "10px");
+		datePicker.getStyle().set("margin-right", "10px").set("width", "130px");
 		datePicker.setMax(LocalDate.now());
 		datePicker.setValue(LocalDate.now().minusDays(1));
 		
@@ -100,7 +101,7 @@ public abstract class TranLogSearchComponent extends VerticalLayout {
 
 		FlexLayout row1Layout = new FlexLayout(panField, rrnField, datePicker, refreshBtnLayout);
 		row1Layout.setAlignContent(ContentAlignment.START);
-		row1Layout.setWidth("70%");
+		row1Layout.setWidth("60%");
 		
 		transectionTypesCombo = new ComboBox();
 		List<String> transectionTypeList = new ArrayList<String>();
@@ -108,15 +109,23 @@ public abstract class TranLogSearchComponent extends VerticalLayout {
 		transectionTypeList.add("Refund");
 		transectionTypeList.add("Completion");
 		transectionTypesCombo.setItems(transectionTypeList);
-		transectionTypesCombo.addValueChangeListener(e -> {
+/*		transectionTypesCombo.addValueChangeListener(e -> {
 			System.out.println("transectionTypesCombo.addValueChangeListener:"+e.getValue());
 			changeTransectionStatus(e.getValue());
-		});
-		Label typeOfTxnLabel = new Label("Type of Txn."); 
+		}); */
+		Label typeOfTxnLabel = new Label("Follow up Txn."); 
 		typeOfTxnLabel.getStyle().set("font-weight", "500").set("padding", "9px 6px").set("color", "#5b6777");    
-		FlexLayout row2TextLayout = new FlexLayout(typeOfTxnLabel, transectionTypesCombo);
+		changeTxnStatusButton = new Button("Send");
+		changeTxnStatusButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		changeTxnStatusButton.getStyle().set("margin-left", "5px");
+
+		changeTxnStatusButton.addClickListener(e -> {
+			System.out.println("changeTxnStatusButton.addClickListener:"+transectionTypesCombo.getValue());
+			changeTransectionStatus(transectionTypesCombo.getValue());
+		});
+		FlexLayout row2TextLayout = new FlexLayout(typeOfTxnLabel, transectionTypesCombo, changeTxnStatusButton);
 		row2TextLayout.setAlignContent(ContentAlignment.END);
-		row2TextLayout.setWidth("30%");
+		row2TextLayout.setWidth("40%");
 		
 		row1.add(row1Layout, row2TextLayout);
 
