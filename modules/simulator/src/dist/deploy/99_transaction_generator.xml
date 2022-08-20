@@ -2,7 +2,7 @@
 
 <txn-generator class="org.jpos.util.TransactionGenerator" enabled="true">
 	<property name="initial-delay" value="30000" />
- 	<property name="txn-pause-interval" value="1000" />
+ 	<property name="txn-pause-interval" value="2000" />
 	<property name="mux"      value="mux.jcard" />
 	<property name="acquirer_id"      value="00000000001" />
 

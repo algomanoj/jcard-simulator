@@ -113,6 +113,7 @@ public class TransactionGenerator extends QBeanSupport implements Runnable {
 				}
 				ISOUtil.sleep(txnPauseinterval*5);
 			}
+			ISOUtil.sleep(txnPauseinterval*10);
 		}
 
 	}

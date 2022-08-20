@@ -85,17 +85,6 @@ public class TranLogView extends QIEntityView<TranLog> {
 		loadLayersFromConfig();
 		Object sessionDateRange = VaadinSession.getCurrent().getAttribute("tranlog-daterange");
 		defaultDateRange = sessionDateRange instanceof DateRange ? ((DateRange) sessionDateRange) : defaultDateRange;
-// 		crud.getCrudFormFactory().setConverter("card", new CardConverter());
-//      crud.getGrid().addSelectionListener((SelectionListener<Grid<TranLog>, TranLog>) selectionEvent -> {
-//      	UI ui = UI.getCurrent();
-//      	ui.getPage().fetchCurrentURL(currentUrl -> {
-//      		Optional optional = selectionEvent.getFirstSelectedItem();
-//          	if (optional.isPresent()) {
-//          		ui.getPage().getHistory().pushState(null, getGeneralRoute());
-//          	}
-//       	});
-//       });
-
 		crud.getGrid().addItemClickListener(e -> {
 			TranLog item = (TranLog) getHelper().getEntityById(e.getItem().getId().toString());
 			FormLayout hLayout = createTranLogDetailsComponent(item);
@@ -255,30 +244,7 @@ public class TranLogView extends QIEntityView<TranLog> {
 				}, null);
 				return field;
 			}
-			case ("localId"): {
-				TextField field = new TextField();
-				Binder.BindingBuilder builder = binder.forField(field);
-				builder.bind(bean -> {
-					TranLog tl = (TranLog) bean;
-					return String.valueOf(tl.getLocalId());
-				}, null);
-				return field;
-			}
-
-			case ("pdc"): {
-				TextField field = new TextField();
-				Binder.BindingBuilder builder = binder.forField(field);
-
-				builder.bind(bean -> {
-					TranLog tl = (TranLog) bean;
-					if (tl.getPdc() != null) {
-						return getHelper().getPdcAsString(tl.getPdc());
-					} else {
-						return "";
-					}
-				}, null);
-				return field;
-			}
+		
 			case ("irc"): {
 				TextField field = new TextField();
 				Binder.BindingBuilder builder = binder.forField(field);
@@ -368,66 +334,13 @@ public class TranLogView extends QIEntityView<TranLog> {
 				return field;
 			}
 
-			case ("node"): {
-				TextField field = new TextField();
-				Binder.BindingBuilder builder = binder.forField(field);
-				builder.bind(bean -> {
-					TranLog tl = (TranLog) bean;
-					return tl.getNode() != null ? tl.getNode() : "";
-				}, null);
-				return field;
-			}
-
+		
 			case ("ss"): {
 				TextField field = new TextField();
 				Binder.BindingBuilder builder = binder.forField(field);
 				builder.bind(bean -> {
 					TranLog tl = (TranLog) bean;
 					return tl.getSs() != null ? tl.getSs() : "";
-				}, null);
-				return field;
-			}
-
-			case ("batchNumber"): {
-				TextField field = new TextField();
-				Binder.BindingBuilder builder = binder.forField(field);
-				builder.bind(bean -> {
-					TranLog tl = (TranLog) bean;
-					return String.valueOf(tl.getBatchNumber());
-				}, null);
-				return field;
-			}
-
-			case ("duration"): {
-				TextField field = new TextField();
-				Binder.BindingBuilder builder = binder.forField(field);
-				builder.bind(bean -> {
-					TranLog tl = (TranLog) bean;
-					return String.valueOf(tl.getDuration());
-				}, null);
-				return field;
-			}
-			case ("outstanding"): {
-				TextField field = new TextField();
-				Binder.BindingBuilder builder = binder.forField(field);
-				builder.bind(bean -> {
-					TranLog tl = (TranLog) bean;
-					return String.valueOf(tl.getOutstanding());
-				}, null);
-				return field;
-			}
-			case ("captureDate"): {
-				TextField field = new TextField();
-				Binder.BindingBuilder builder = binder.forField(field);
-				StringToDateConverter dateConverter = new StringToDateConverter() {
-					@Override
-					protected DateFormat getFormat(Locale locale) {
-						return new SimpleDateFormat(QI.getQI().getMessage("dateformat"));
-					}
-				};
-				builder.withNullRepresentation("").withConverter(dateConverter).bind(bean -> {
-					TranLog tl = (TranLog) bean;
-					return tl.getCaptureDate();
 				}, null);
 				return field;
 			}
@@ -480,64 +393,7 @@ public class TranLogView extends QIEntityView<TranLog> {
 				}, null);
 				return field;
 			}
-			case ("replacementAmount"): {
-				TextField field = new TextField();
-				field.addThemeVariants(TextFieldVariant.LUMO_ALIGN_RIGHT);
-				Binder.BindingBuilder builder = binder.forField(field);
-				builder.withNullRepresentation("").withConverter(new AmountConverter(getApp().getMessage("errorMessage.NaN"))).bind(bean -> {
-					TranLog tl = (TranLog) bean;
-					return tl.getReplacementAmount();
-				}, null);
-				return field;
-			}
-			case ("additionalAmount"): {
-				TextField field = new TextField();
-				field.addThemeVariants(TextFieldVariant.LUMO_ALIGN_RIGHT);
-				Binder.BindingBuilder builder = binder.forField(field);
-				builder.withNullRepresentation("").withConverter(new AmountConverter(getApp().getMessage("errorMessage.NaN"))).bind(bean -> {
-					TranLog tl = (TranLog) bean;
-					return tl.getAdditionalAmount();
-				}, null);
-				return field;
-			}
-			case ("acquirerFee"): {
-				TextField field = new TextField();
-				field.addThemeVariants(TextFieldVariant.LUMO_ALIGN_RIGHT);
-				Binder.BindingBuilder builder = binder.forField(field);
-				builder.withNullRepresentation("").withConverter(new AmountConverter(getApp().getMessage("errorMessage.NaN"))).bind(bean -> {
-					TranLog tl = (TranLog) bean;
-					return tl.getAcquirerFee();
-				}, null);
-				return field;
-			}
-			case ("issuerFee"): {
-				TextField field = new TextField();
-				field.addThemeVariants(TextFieldVariant.LUMO_ALIGN_RIGHT);
-				Binder.BindingBuilder builder = binder.forField(field);
-				builder.withNullRepresentation("").withConverter(new AmountConverter(getApp().getMessage("errorMessage.NaN"))).bind(bean -> {
-					TranLog tl = (TranLog) bean;
-					return tl.getIssuerFee();
-				}, null);
-				return field;
-			}
-			case ("returnedBalances"): {
-				TextField field = new TextField();
-				Binder.BindingBuilder builder = binder.forField(field);
-				builder.withNullRepresentation("").bind(bean -> {
-					TranLog tl = (TranLog) bean;
-					return tl.getReturnedBalances() != null ? tl.getReturnedBalances() : "";
-				}, null);
-				return field;
-			}
-			case ("glTransaction"): {
-				return item.getGlTransaction() != null ? new GLEntriesGrid(item.getGlTransaction()) : null;
-			}
-//	            case ("tags"): {
-//	                TextField field = new TextField();
-//	                Binder.BindingBuilder<TranLog, String> builder = formatField(propertyId, field);
-//	                builder.withNullRepresentation("").withConverter(new StringToTagConverter()).bind(propertyId);
-//	                return field;
-//	            }
+			
 			case ("card"):
 			case ("card2"): {
 				TextField field = new TextField();
@@ -546,20 +402,7 @@ public class TranLogView extends QIEntityView<TranLog> {
 					.bind(bean-> ((TranLog)bean).getCard(), null);
 				return field;
 			}
-			case ("cardProduct"): {
-				TextField field = new TextField();
-				Binder.BindingBuilder builder = binder.forField(field);
-				builder.bind(bean -> ((TranLog) bean).getCardProduct() != null ? ((TranLog) bean).getCardProduct().getName()
-				: "", null);
-				return field;
-			}
-//	            case ("additionalData"): {
-//	                TextArea field = new TextArea();
-//	                Binder.BindingBuilder builder = binder.forField(field);
-//	                builder.bind(bean -> ((TranLog)bean).getAdditionalData() != null ?
-//	                  ((TranLog)bean).getAdditionalData().toPrettyString() : "", null);
-//	                return field;
-//	            }
+			
 		}
 		return null;
 	}
@@ -589,7 +432,6 @@ public class TranLogView extends QIEntityView<TranLog> {
 		currencyCodeFilterField.setPlaceholder("Filter by currency code...");
 		currencyCodeFilterField.setClearButtonVisible(true);
 		currencyCodeFilterField.setValueChangeMode(ValueChangeMode.EAGER);
-		// currencyCodeFilterField.addValueChangeListener(e -> updateList());
 		Component component = super.initContent();
 
 		VerticalLayout vl = new VerticalLayout();
@@ -600,15 +442,13 @@ public class TranLogView extends QIEntityView<TranLog> {
 		crud.getFindAllButton().addClickListener(e -> {
 			tranLogSearchComponent.resetFilter();
 		});
-		tranLogSearchComponent = new TranLogSearchComponent(/* defaultDateRange.getRange(), */layers, viewTitle, getHelper(), vl) {
+		tranLogSearchComponent = new TranLogSearchComponent(layers, viewTitle, getHelper(), vl) {
 			@Override
 			protected void refresh() {
-				System.out.println(" refresh called ");
 				refreshGrid(getValue());
 			}
 			@Override
 			void changeTransectionStatus(String transectionStatus) {
-				System.out.println("changed Transection Status");
 				changeTranStatus(transectionStatus);
 			}
 		};
@@ -620,7 +460,6 @@ public class TranLogView extends QIEntityView<TranLog> {
 		return vl;
 	}
 	private void changeTranStatus(String transectionStatus) {
-		System.out.println("crud.getGrid().getSelectedItems().size():"+crud.getGrid().getSelectedItems().size());
 		for (TranLog tranLog : crud.getGrid().getSelectedItems()) {
 			initiateTxn(tranLog, transectionStatus);
 		}
@@ -643,13 +482,6 @@ public class TranLogView extends QIEntityView<TranLog> {
 			
 			BigDecimal amount = tranLog.getAmount();
             m.set(new ISOAmount(4, Integer.parseInt(tranLog.getCurrencyCode()), amount));
-            /* TODO
-			if(cvvField.getValue() == null || cvvField.getValue().isEmpty() == false) {
-				m.set("49.2", cvvField.getValue());
-			}
-			if(pinField.getValue() == null || pinField.getValue().isEmpty() == false) {
-				m.set(52, ISOUtil.hex2byte(pinField.getValue()));
-			} */
 			
 			Date date = tranLog.getTransmissionDate();
 			m.set(7, ISODate.getDateTime(date)); // date
