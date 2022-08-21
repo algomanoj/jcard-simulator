@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
+import org.eclipse.jetty.io.ssl.SslConnection.DecryptedEndPoint;
 import org.jpos.core.Configuration;
 import org.jpos.ee.Card;
 import org.jpos.ee.CardHolder;
@@ -37,6 +38,10 @@ import org.jpos.qi.views.card.CardConverter;
 import org.jpos.qi.views.demo.TransactView.TranTypeData;
 import org.jpos.qi.views.minigl.GLEntriesGrid;
 import org.jpos.security.SMException;
+import org.jpos.security.SecureDESKey;
+import org.jpos.security.SecureKeyStore;
+import org.jpos.security.SecureKeyStore.SecureKeyStoreException;
+import org.jpos.security.jceadapter.SSM;
 import org.jpos.util.NameRegistrar;
 import org.jpos.util.NameRegistrar.NotFoundException;
 import org.vaadin.crudui.crud.impl.GridCrud;
@@ -477,8 +482,11 @@ public class TranLogView extends QIEntityView<TranLog> {
 			}
 			ISOMsg m = new ISOMsg(mti);
 
-			m.set(2, tranLog.getCard().getPan());
-			m.set(3,  "000000"); // Processing Code
+			Map smap = getCardSecureMap(tranLog.getCard());
+			m.set(2, (String)smap.get("P"));
+
+			String itc = tranLog.getItc();
+			m.set(3,  itc.substring(itc.indexOf(".")) + "0000"); // Processing Code
 			
 			BigDecimal amount = tranLog.getAmount();
             m.set(new ISOAmount(4, Integer.parseInt(tranLog.getCurrencyCode()), amount));
@@ -493,54 +501,33 @@ public class TranLogView extends QIEntityView<TranLog> {
 				exp = expDate.format(DateTimeFormatter.ofPattern("yyMM"));
 			}
 			m.set(14, exp); // expiry date
-			/* TODO
-			byte[] entMode = posEnvData.get(entryModeField.getValue());
-			if (entMode != null) {
-				m.set(22, entMode);
-			}*/
+			m.set(22, tranLog.getPdc());
 			m.set(32, "00000000001");
-			m.set(37, tranLog.getRrn());// rrnField.getValue()
-			m.set(41, tranLog.getTid() );// tid //termIdField.getValue()
-			m.set(42, tranLog.getMid()); // mid // midField.getValue()
-			//m.set("43.2", merchDetField.getValue()); // merchant Name //TODO
-			// m.set("43.4", "Montevideo");
-			// m.set("43.5", "MV");
-			// m.set("43.7", "UY");
-			// m.set(46, "07D84020000005000000001D840200000050");
+			m.set(37, tranLog.getRrn());
+			m.set(41, tranLog.getTid() );
+			m.set(42, tranLog.getMid());
+			if(tranLog.getCardAcceptor()!=null) {
+				ISOMsg f43 = new ISOMsg(43);
+				f43.set(2, tranLog.getCardAcceptor().getName());
+				f43.set(4, tranLog.getCardAcceptor().getCity());
+				f43.set(5, tranLog.getCardAcceptor().getRegion());
+				f43.set(6, tranLog.getCardAcceptor().getPostalCode());
+				f43.set(7, tranLog.getCardAcceptor().getCountry());
+				m.set(f43);
+				
+			}
 			m.set("113.2", "106");
 			m.set("113.25", "MINIATM");
 			MUX mux =  NameRegistrar.getIfExists ("mux.jcard");
-			// if it's a 2220, send a 2100 first.
-			boolean send = true;
-			if ("2220".equals(mti)) {
-				ISOMsg m1 = (ISOMsg) m.clone();
-				m1.setMTI("2100");
-				ISOMsg r1 = mux.request(m1, 5000);
 
-				if (r1 != null && r1.getString(39).equals("0000")) {
-					m.set(25, "0000");
-					m.set(38, r1.getString(38));
-					// success
-				} else {
-					send = false;
-					if (r1 == null) {
-						//setStatus("Transaction Timed-out"); //TODO
-					} else {
-						//setResponse(r1); //TODO
-					}
-				}
+			ISOMsg resp = mux.request(m, 5000);
+			if(resp!=null) {
+				String authCode = resp.getString(38);
+				String respCode = resp.getString(39);
 			}
-			if (send) {
-				ISOMsg r = mux.request(m, 5000);
-				if (r == null) {
-					//setStatus("Transaction Timed-out"); //TODO
-				} else {
-					//setResponse(r); //TODO
-				}
-			}
+
 		} catch (Exception e) {
 			System.out.println(e);
-			//setStatus("Encountered unknown exception");//TODO
 		}
 	}
 
@@ -609,5 +596,27 @@ public class TranLogView extends QIEntityView<TranLog> {
 	@Override
 	public void onAttach(AttachEvent event) {
 		tranLogSearchComponent.getRefreshButton().click();
+	}
+	
+	private SSM getSSM() throws NameRegistrar.NotFoundException {
+		return (SSM) NameRegistrar.get("ssm");
+	}
+
+	protected SecureDESKey getBDK(String bdkName) throws SMException, SecureKeyStoreException {
+		try {
+			SecureKeyStore ks = NameRegistrar.get("ks");
+			return ks.getKey(bdkName);
+		} catch (NotFoundException e) {
+			throw new SMException(e.getMessage());
+		}
+	}
+
+	protected Map getCardSecureMap(Card card) throws NotFoundException, SecureKeyStoreException, SMException {
+		Map secureMap = card.getSecureMap();
+		if (secureMap == null) {
+			secureMap = getSSM().customDecryptMap(getBDK(card.getKid()), card.getSecureData());
+			card.setSecureMap(secureMap);
+		}
+		return secureMap;
 	}
 }
