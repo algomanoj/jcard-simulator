@@ -33,13 +33,14 @@
 		<option name="transact" action="transact" />
 		<option name="transactGenerator" action="generateTxn" />
 		<option name="tranlog" action="tranlog"/>
+		<option name="card" action="cardSearch"/>
 	</sidebar>
 
 	<view route="home" class="org.jpos.qi.views.home.HomeView" perm="*" sidebar="system" />
 
 	<view route="generateTxn" class="org.jpos.qi.views.demo.TransactionGeneratorView" perm="*" sidebar="jcard" />
 	
-	
+	<view route="cardSearch" class="org.jpos.qi.views.demo.CardSearchView" perm="*" sidebar="jcard" />
 
 	
 	<view route="transact" class="org.jpos.qi.views.demo.TransactView" perm="*" sidebar="jcard">
