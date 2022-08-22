@@ -444,6 +444,7 @@ public class TranLogView extends QIEntityView<TranLog> {
 		H2 viewTitle = new H2(getApp().getMessage(getName()));
 		viewTitle.addClassNames("mt-s", "text-l");
 		crud = createCrud();
+		crud.getContent().getStyle().set("margin-top", "-60px");
 		crud.getFindAllButton().addClickListener(e -> {
 			tranLogSearchComponent.resetFilter();
 		});
