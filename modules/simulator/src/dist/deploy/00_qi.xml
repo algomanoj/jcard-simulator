@@ -32,8 +32,8 @@
 		<section name="Demo" />
 		<option name="transact" action="transact" />
 		<option name="transactGenerator" action="generateTxn" />
-		<option name="tranlog" action="tranlog"/>
-		<option name="card" action="cardSearch"/>
+		<option name="followupTransact" action="tranlog"/>
+		<option name="fetchCard" action="cardSearch"/>
 	</sidebar>
 
 	<view route="home" class="org.jpos.qi.views.home.HomeView" perm="*" sidebar="system" />

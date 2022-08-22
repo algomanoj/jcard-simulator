@@ -86,13 +86,12 @@ public class CardSearchView extends Composite<VerticalLayout> {
 		responseDataHL.removeAll();
 		responseVL.setVisible(true);
 		Card card = getRandomCard();
-		
-		String cardNumber = "";
-		if(card!=null) {
-			cardNumber = card.getBin()==null?"":card.getBin();
-			cardNumber = cardNumber+" "+card.getLastFour()==null?"":card.getLastFour();
+		if(card == null) {
+			responseDataHL.add("No Card found for selected criteria");
+		} else {
+			responseDataHL.add(new Label("Card Number:"), new Label(card.getPan()), new Label("Expiry Date:"), new Label(card.getEndDate().toString()));
 		}
-		responseDataHL.add(new Label("Card Number:"), new Label(cardNumber), new Label("Expiry Date:"), new Label(card.getEndDate().toString()));
+		
 	}
 	
 	private Card getRandomCard() {
