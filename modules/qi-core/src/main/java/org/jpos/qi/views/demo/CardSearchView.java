@@ -92,7 +92,10 @@ public class CardSearchView extends Composite<VerticalLayout> {
 		if(card == null) {
 			responseDataHL.add("No Card found for selected criteria");
 		} else {
-			responseDataHL.add(new Label("Card Number:"), new Label(card.getPan()), new Label("Expiry Date:"), new Label(card.getEndDate().toString()));
+			VerticalLayout respVL = new VerticalLayout();
+			respVL.add(new HorizontalLayout(new Label("Card Number:"), new Label(card.getPan())));
+			respVL.add(new HorizontalLayout(new Label("Expiry Date:"), new Label(card.getEndDate().toString())));
+			responseDataHL.add(respVL);
 		}
 		
 	}
