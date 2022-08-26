@@ -243,12 +243,12 @@ public class TransactView extends Composite<VerticalLayout> {
 		txnBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
 		HorizontalLayout hl = new HorizontalLayout();
-		Label line = new Label("Request");
-		line.setWidth(100f, Unit.PERCENTAGE);
-		vl.add(line);
-		Hr hr = new Hr();
-		line.setWidth(100f, Unit.PERCENTAGE);
-		vl.add(hr);
+		//Label line = new Label("Request");
+		//line.setWidth(100f, Unit.PERCENTAGE);
+		//vl.add(line);
+		//Hr hr = new Hr();
+		//line.setWidth(100f, Unit.PERCENTAGE);
+		//vl.add(hr);
 		
 		hl.add(leftFormLayout, rightFormLayout);
 		leftFormLayout.add(cardNumberField, expDateField, cvvField, pinField, stanField, rrnField,midField);// amountField, currencyField);
