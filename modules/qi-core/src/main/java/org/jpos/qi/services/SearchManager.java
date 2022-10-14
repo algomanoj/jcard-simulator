@@ -38,15 +38,15 @@ public class SearchManager<T> extends DBManager<T>{
 
         Criteria critCard = db.session().createCriteria(Card.class);
 		if (isNotEmpty(token)) {
-			critCard.add(Restrictions.ge("endDate", new Date()));
+			critCard.add(Restrictions.eq("token", token));
 		}
 
 		if(isNotEmpty(scheme) || isNotEmpty(cardProductName)) {
 			Criteria critCP = critCard.createCriteria("cardProduct");
 			if(isNotEmpty(cardProductName))
-				critCP.add(Restrictions.gt("name", cardProductName));
+				critCP.add(Restrictions.eq("name", cardProductName.toLowerCase()).ignoreCase());
 			if(isNotEmpty(scheme))
-				critCP.add(Restrictions.gt("scheme", scheme));
+				critCP.add(Restrictions.eq("scheme", scheme.toLowerCase()).ignoreCase());
 		}
         
         if(isNotEmpty(realId)) {
