@@ -451,7 +451,9 @@ public class TranLogView extends QIEntityView<TranLog> {
 		tranLogSearchComponent = new TranLogSearchComponent(layers, viewTitle, getHelper(), vl) {
 			@Override
 			protected void refresh() {
-				refreshGrid(getValue());
+				TranLogFilter tranLogFilter = getValue();
+				tranLogFilter.setApproved(true);
+				refreshGrid(tranLogFilter);
 			}
 			@Override
 			void changeTransectionStatus(String transectionStatus) {
