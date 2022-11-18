@@ -38,7 +38,7 @@ public class SearchManager<T> extends DBManager<T>{
 
         Criteria critCard = db.session().createCriteria(Card.class);
 		if (isNotEmpty(token)) {
-			critCard.add(Restrictions.ge("endDate", new Date()));
+			critCard.add(Restrictions.ge("token", token));
 		}
 
 		if(isNotEmpty(scheme) || isNotEmpty(cardProductName)) {
