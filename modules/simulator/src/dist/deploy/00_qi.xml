@@ -34,6 +34,12 @@
 		<option name="transactGenerator" action="generateTxn" />
 		<option name="followupTransact" action="tranlog"/>
 		<option name="fetchCard" action="cardSearch"/>
+		<section name="jCARD" />
+		<option name="jcard" action="jcard"/>
+		<section name="jPTS" />
+		<option name="jpts" action="jpts"/>
+		<section name="Help" />
+		<option name="help" action="help"/>
 	</sidebar>
 
 	<view route="home" class="org.jpos.qi.views.home.HomeView" perm="*" sidebar="system" />
@@ -42,6 +48,9 @@
 	
 	<view route="cardSearch" class="org.jpos.qi.views.demo.CardSearchView" perm="*" sidebar="jcard" />
 
+	<view route="jcard" class="org.jpos.qi.views.demo.JcardView" perm="*" sidebar="jCARD" />
+	<view route="jpts" class="org.jpos.qi.views.demo.JptsView" perm="*" sidebar="jPTS" />
+	<view route="help" class="org.jpos.qi.views.demo.HelpView" perm="*" sidebar="Help" />
 	
 	<view route="transact" class="org.jpos.qi.views.demo.TransactView" perm="*" sidebar="jcard">
 		<property name="entityName" value="transaction" />
