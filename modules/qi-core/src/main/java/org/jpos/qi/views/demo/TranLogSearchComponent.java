@@ -53,12 +53,12 @@ public abstract class TranLogSearchComponent extends VerticalLayout {
 
 		panField = new TextField();
 		panField.setPlaceholder(app.getMessage("PAN"));
-		panField.getStyle().set("margin-right", "10px").set("width", "140px");
+		panField.getStyle().set("margin-right", "10px").set("width", "190px");
 		rrnField = new TextField();
 		rrnField.setPlaceholder(app.getMessage("RRN"));
-		rrnField.getStyle().set("margin-right", "10px").set("width", "140px");
+		rrnField.getStyle().set("margin-right", "10px").set("width", "190px");
 		datePicker = new DatePicker();
-		datePicker.getStyle().set("margin-right", "10px").set("width", "130px");
+		datePicker.getStyle().set("margin-right", "10px").set("width", "190px");
 		datePicker.setMax(LocalDate.now());
 		datePicker.setValue(LocalDate.now());
 		
