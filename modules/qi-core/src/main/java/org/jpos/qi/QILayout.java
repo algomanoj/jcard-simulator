@@ -16,6 +16,8 @@ import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.*;
+
+import org.apache.commons.lang3.ArrayUtils;
 import org.jdom2.Element;
 import org.jpos.ee.User;
 import org.jpos.q2.Q2;
@@ -209,7 +211,7 @@ public class QILayout<T> extends AppLayout {
         Anchor jposLink = new Anchor("https://jpos.org", "Powered by jPOS");
         jposLink.addClassNames("text-secondary", "block");
         layout.add(jposLink);
-        String[] versionArgs = Q2.getAppVersionString().split(" ");
+        String[] versionArgs = Q2.getAppVersionString() != null ? Q2.getAppVersionString().split(" ") : ArrayUtils.EMPTY_STRING_ARRAY;
         if (versionArgs.length >= 6) {
             String appVersion = versionArgs[1];
             String buildTime = versionArgs[3] + versionArgs[4] + versionArgs [5];
