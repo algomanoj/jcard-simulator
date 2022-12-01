@@ -12,6 +12,7 @@ import org.jpos.qi.services.SearchManager;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -37,6 +38,8 @@ public class CardSearchView extends Composite<VerticalLayout> {
 	@Override
 	public VerticalLayout initContent() {
 		VerticalLayout vl = new VerticalLayout();
+		H2 viewTitle = new H2(app.getMessage("fetchCard"));
+		viewTitle.addClassNames("mt-s", "text-l");
 		
 		//Label tokenLabel = new Label("Token");
 		tokenField = new TextField();
@@ -79,7 +82,7 @@ public class CardSearchView extends Composite<VerticalLayout> {
 		//responseDataVL.add(new Label("Card Number:"), cardNumberResponse);
 		responseVL.add(responseLabelHL, responseDataHL);
 
-		vl.add(hl1,responseVL);
+		vl.add(viewTitle, hl1,responseVL);
 		return vl;	
 	}
 	private void searchCard() {
@@ -89,7 +92,10 @@ public class CardSearchView extends Composite<VerticalLayout> {
 		if(card == null) {
 			responseDataHL.add("No Card found for selected criteria");
 		} else {
-			responseDataHL.add(new Label("Card Number:"), new Label(card.getPan()), new Label("Expiry Date:"), new Label(card.getEndDate().toString()));
+			VerticalLayout respVL = new VerticalLayout();
+			respVL.add(new HorizontalLayout(new Label("Card Number:"), new Label(card.getPan())));
+			respVL.add(new HorizontalLayout(new Label("Expiry Date:"), new Label(card.getEndDate().toString())));
+			responseDataHL.add(respVL);
 		}
 		
 	}

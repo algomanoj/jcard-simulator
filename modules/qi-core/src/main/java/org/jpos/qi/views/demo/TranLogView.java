@@ -441,7 +441,7 @@ public class TranLogView extends QIEntityView<TranLog> {
 
 		VerticalLayout vl = new VerticalLayout();
 		vl.setHeightFull();
-		H2 viewTitle = new H2(getApp().getMessage(getName()));
+		H2 viewTitle = new H2(getApp().getMessage("followupTransact"));
 		viewTitle.addClassNames("mt-s", "text-l");
 		crud = createCrud();
 		crud.getContent().getStyle().set("margin-top", "-60px");
