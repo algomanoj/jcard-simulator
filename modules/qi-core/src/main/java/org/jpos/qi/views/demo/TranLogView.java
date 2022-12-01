@@ -3,6 +3,7 @@ package org.jpos.qi.views.demo;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -498,7 +499,8 @@ public class TranLogView extends QIEntityView<TranLog> {
 			m.set(7, ISODate.getDateTime(date)); // date
 			m.set(11, tranLog.getStan()); // stan
 			m.set(12, ISODate.formatDate(date, "yyyyMMddHHmmss"));
-			LocalDate expDate = tranLog.getCard().getEndDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();// expDateField.getValue();
+			LocalDate expDate = Instant.ofEpochMilli(tranLog.getCard().getEndDate().getTime())
+				       .atZone(ZoneId.systemDefault()).toLocalDate();// expDateField.getValue();
 			String exp = "9912";
 			if (expDate != null) {
 				exp = expDate.format(DateTimeFormatter.ofPattern("yyMM"));
