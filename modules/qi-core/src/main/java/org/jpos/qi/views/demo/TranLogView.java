@@ -470,11 +470,15 @@ public class TranLogView extends QIEntityView<TranLog> {
 	}
 	private void changeTranStatus(String transectionStatus) {
 		for (TranLog tranLog : crud.getGrid().getSelectedItems()) {
+			QI.getQI().getLog().info("changeTranStatus Called : Processing for tranlog id "+ tranLog.getId());
 			initiateTxn(tranLog, transectionStatus);
 		}
+		QI.getQI().getLog().info("Calling Refresh Grid after updating status ");
+		tranLogSearchComponent.refresh();
 	}
 	
 	private void initiateTxn(TranLog tranLog, String transectionStatus) {
+		QI.getQI().getLog().info("initiateTxn Called : tranlog id "+ tranLog.getId() + " and selected status "+ transectionStatus);
 		try {
 			String mti = null;
 			if("refund".equalsIgnoreCase(transectionStatus)) {
@@ -526,13 +530,16 @@ public class TranLogView extends QIEntityView<TranLog> {
 			MUX mux =  NameRegistrar.getIfExists ("mux.jcard");
 
 			ISOMsg resp = mux.request(m, 5000);
+			QI.getQI().getLog().info("Response Received "  + resp + " from MUX for above message "+  m.toString());
 			if(resp!=null) {
 				String authCode = resp.getString(38);
 				String respCode = resp.getString(39);
+				QI.getQI().getLog().info("Response Received with authcode "  + authCode + " and Response Code "+  respCode);
 			}
 
 		} catch (Exception e) {
-			System.out.println(e);
+			e.printStackTrace();
+			QI.getQI().getLog().error(e);
 		}
 	}
 
