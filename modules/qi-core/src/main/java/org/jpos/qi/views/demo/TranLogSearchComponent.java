@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jpos.ee.TranLog;
 import org.jpos.qi.QI;
 import org.jpos.qi.core.ee.TranLogFilter;
 import org.jpos.qi.services.TranLogHelper;
@@ -14,6 +15,8 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.FlexLayout.ContentAlignment;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -33,6 +36,7 @@ public abstract class TranLogSearchComponent extends VerticalLayout {
 	private ComboBox<String> transectionTypesCombo = new ComboBox<>();
 
 	private H2 pageTitle;
+	private Label respStatus;
 
 
 	public TranLogSearchComponent(short[] layers, H2 pageTitle, 
@@ -74,6 +78,8 @@ public abstract class TranLogSearchComponent extends VerticalLayout {
 
 		});
 
+		
+		
 		FlexLayout row1Layout = new FlexLayout(panField, rrnField, datePicker, refreshBtnLayout);
 		row1Layout.setAlignContent(ContentAlignment.START);
 		row1Layout.setWidth("60%");
@@ -98,9 +104,28 @@ public abstract class TranLogSearchComponent extends VerticalLayout {
 		row2TextLayout.setWidth("40%");
 		
 		row1.add(row1Layout, row2TextLayout);
-
-		verticalLayout.add(pageTitle, row1);
+		
+		HorizontalLayout row2 = new HorizontalLayout();
+		row2.setWidth("100%");
+		row2.setMargin(false);
+		respStatus = new Label();
+		respStatus.setVisible(false);
+		respStatus.addClassNames("pr-m");
+		row2.addClassNames("pr-s");
+		row2.setJustifyContentMode(FlexComponent.JustifyContentMode.END);
+		row2.add(respStatus);
+		verticalLayout.add(pageTitle, row1, row2);
 	}
+	
+	public void showTranlogRespStatus(TranLog tranlog, String respCode, String error) {
+		respStatus.removeAll();
+		Paragraph p = new Paragraph("ID : "+tranlog.getId() + "      Resp Code : "+ respCode + (error != null ? "      Description : "+ error : ""));
+		p.addClassNames("font-light", "text-s");
+		p.getStyle().set("white-space", "pre-wrap");
+		respStatus.add(p);
+		respStatus.setVisible(true);
+	}
+	
 	abstract void changeTransectionStatus(String transectionStatus);
 	private void createClickRefreshListener() {
 		refresh();

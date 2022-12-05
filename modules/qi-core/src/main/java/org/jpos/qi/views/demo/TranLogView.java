@@ -473,8 +473,6 @@ public class TranLogView extends QIEntityView<TranLog> {
 			QI.getQI().getLog().info("changeTranStatus Called : Processing for tranlog id "+ tranLog.getId());
 			initiateTxn(tranLog, transectionStatus);
 		}
-		QI.getQI().getLog().info("Calling Refresh Grid after updating status ");
-		tranLogSearchComponent.refresh();
 	}
 	
 	private void initiateTxn(TranLog tranLog, String transectionStatus) {
@@ -494,7 +492,7 @@ public class TranLogView extends QIEntityView<TranLog> {
 			m.set(2, (String)smap.get("P"));
 
 			String itc = tranLog.getItc();
-			m.set(3,  itc.substring(itc.indexOf(".")) + "0000"); // Processing Code
+			m.set(3,  itc.substring(itc.indexOf(".")+1) + "0000"); // Processing Code
 			
 			BigDecimal amount = tranLog.getAmount();
             m.set(new ISOAmount(4, Integer.parseInt(tranLog.getCurrencyCode()), amount));
@@ -534,6 +532,8 @@ public class TranLogView extends QIEntityView<TranLog> {
 			if(resp!=null) {
 				String authCode = resp.getString(38);
 				String respCode = resp.getString(39);
+				String errorMessage = resp.getString(123);
+				tranLogSearchComponent.showTranlogRespStatus(tranLog, respCode, errorMessage);
 				QI.getQI().getLog().info("Response Received with authcode "  + authCode + " and Response Code "+  respCode);
 			}
 
